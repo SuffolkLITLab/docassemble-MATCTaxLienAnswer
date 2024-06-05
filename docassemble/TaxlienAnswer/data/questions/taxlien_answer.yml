@@ -1,0 +1,438 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+---
+metadata:
+  title: >-
+    Tax-lien answer
+  short title: >-
+    Tax-lien answer
+  description: |-
+    This interview helps someone in Massachusetts respond to a tax lien against them.
+  can_I_use_this_form: |
+    If you are someone who has a tax lien against them, you can use this interview to respond to the lien by challenging the validity of the other party's claim or accepting to pay what the court determines you owe.
+  before_you_start: |
+    This interview will help you respond to a tax lien.
+    
+    Before you get started, please gather:
+    
+    1. The contact information for both parties and or their counsel.
+    
+    
+    When you are finished, you will need to:
+    
+    1. Make sure that your answer is served to the other party or their counsel.
+  maturity: production
+  estimated_completion_minutes: 60
+  estimated_completion_delta: 30
+  LIST_topics: 
+    - "MO-00-00-00-00"
+    - "MO-09-00-00-00"
+    - "MO-12-00-00-00"
+  tags:
+    - "MO-00-00-00-00"
+    - "MO-09-00-00-00"
+    - "MO-12-00-00-00"
+  authors:
+    - Benjamin Eilert and Karla Fuentes
+  original_form: []
+  original_form_published_on: ""
+  allowed_courts: 
+    - "Land Court"
+  typical_role: "defendant"
+  al_weaver_version: "1.10.3"
+  generated_on: "2024-06-05"
+  languages:
+    - en
+  jurisdiction: NAM-US-US+MA
+  review_date: 2024-06-05
+  form_titles:
+    - Tax-lien answer
+  form_numbers: []
+  update_notes: |
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "MA"
+---
+code: |
+  github_repo_name =  'docassemble-TaxlienAnswer'
+---
+code: |
+  interview_short_title = "respond to a tax lien against them."
+---
+code: |
+  al_form_type = "existing_case" 
+---
+objects:
+  - users: ALPeopleList.using(there_are_any=True)
+---
+sections:
+  - review_taxlien_answer: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_taxlien_answer
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = ['Land Court']
+  nav.set_section("review_taxlien_answer")
+  user_role = "defendant"
+  user_ask_role = "defendant"
+  users.gather()
+  set_parts(subtitle=str(users))
+  if_users_is_other_specify
+  users_claims_right_to_redeem
+  set_progress(16)
+  bbo_number_if_attorney
+  names_address_of_persons_served
+  trial_court.address.address
+  set_progress(32)
+  docket_number
+  plaintiffs.gather()
+  users[0].phone_number
+  set_progress(48)
+  users[0].mobile_number
+  users[0].address.address
+  users[0].email
+  set_progress(64)
+  signature_date
+  interview_order_taxlien_answer = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  taxlien_answer_intro
+  interview_order_taxlien_answer
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  taxlien_answer_download
+---
+id: Taxlien_answer
+continue button field: taxlien_answer_intro
+question: |
+  Tax-lien answer
+subquestion: |
+  This interview will help you respond to a tax lien against you.
+  
+  Before you get started, please gather:
+  
+  1. The contact information for both parties and or their counsel.
+  
+  
+  When you are finished, you will need to:
+  
+  1. Make sure that your answer is served to the other party or their counsel.
+
+  If you are someone who has a tax lien against them, you can use this interview to respond to the lien by challenging the validity of the other party's claim or accepting to pay what the court determines you owe.
+
+  Most people take about 10 minutes to complete this interview.
+---
+id: What is the users relation to the property
+question: |
+  What is the users relation to the property?
+fields:
+  - "Users is owner": users_is_owner
+    datatype: yesnoradio
+  - "Users is mortgagee": users_is_mortgagee
+    datatype: yesnoradio
+  - "Users is other": users_is_other
+    datatype: yesnoradio  
+  - "If users is other specify": if_users_is_other_specify
+    maxlength: 59
+---
+id: What is the users response to the tax lien
+question: |
+  What is the users response to the tax-lien?
+fields:
+  - "Users claims right to redeem": users_claims_right_to_redeem
+    datatype: yesnoradio
+  - "Users questions plaintiff validity": users_questions_plaintiff_validity
+    datatype: yesnoradio
+  - "If users questions validity specify": if_users_questions_validity_specify
+    input type: area
+---
+id: Please provide your contact or your counsels contact
+question: |
+  Please provide your contact or your counsels contact
+fields:
+  - "Bbo number if attorney": bbo_number_if_attorney
+    maxlength: 30
+    required: False
+  - "Users1 firm": users1_firm
+    input type: area
+    maxlength: 130
+  - "Users1 fax": users1_fax
+    maxlength: 30
+---
+id: Please provide the contact information for those served by this answer
+question: |
+  Please provide the contact information for those served by this answer:
+fields:
+  - "Names address of persons served": names_address_of_persons_served
+    input type: area
+---
+id: preview taxlien_answer
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_taxlien_answer'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: taxlien_answer_preview_question    
+---
+code: |
+  signature_fields = ['users[0].signature']
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  [user.address.address for user in users.complete_elements()]
+  addresses_to_search = [user.address for user in users.complete_elements()]
+---
+id: taxlien answer review screen
+event: review_taxlien_answer
+question: |
+  Review your answers
+review:
+  - Edit: trial_court
+    button: |
+      **Trial court**
+  
+      % if defined("trial_court.address.county"):
+      * address: ${ trial_court.address.block() }
+      % endif
+  - Edit: docket_number
+    button: |
+      **Docket number**:
+      ${ docket_number }
+  - Edit: plaintiffs.revisit
+    button: |
+      **Plaintiffs**
+
+      % for item in plaintiffs:
+        * ${ item }
+      % endfor
+  - Edit: users.revisit
+    button: |
+      **Users**
+
+      % for item in users:
+        * ${ item }
+      % endfor
+  - Edit: if_users_is_other_specify
+    button: |
+      **If users is other specify**:
+      ${ if_users_is_other_specify }
+  - Edit: users_is_owner
+    button: |
+      **Users is owner**:
+      ${ users_is_owner }
+  - Edit: users_is_mortgagee
+    button: |
+      **Users is mortgagee**:
+      ${ users_is_mortgagee }
+  - Edit: users_is_other
+    button: |
+      **Users is other**:
+      ${ users_is_other }
+  - Edit: users_claims_right_to_redeem
+    button: |
+      **Users claims right to redeem**:
+      ${ users_claims_right_to_redeem }
+  - Edit: users_questions_plaintiff_validity
+    button: |
+      **Users questions plaintiff validity**:
+      ${ users_questions_plaintiff_validity }
+  - Edit: if_users_questions_validity_specify
+    button: |
+      **If users questions validity specify**:
+      > ${ single_paragraph(if_users_questions_validity_specify) }
+  - Edit: bbo_number_if_attorney
+    button: |
+      **Bbo number if attorney**:
+      ${ bbo_number_if_attorney }
+  - Edit: users1_firm
+    button: |
+      **Users1 firm**:
+      > ${ single_paragraph(users1_firm) }
+  - Edit: users1_fax
+    button: |
+      **Users1 fax**:
+      ${ users1_fax }
+  - Edit: signature_date
+    button: |
+      **Date of signature**:
+      ${ signature_date }
+  - Edit: names_address_of_persons_served
+    button: |
+      **Names address of persons served**:
+      > ${ single_paragraph(names_address_of_persons_served) }
+---
+continue button field: plaintiffs.revisit
+question: |
+  Edit plaintiffs
+subquestion: |
+  ${ plaintiffs.table }
+
+  ${ plaintiffs.add_action() }
+---
+table: plaintiffs.table
+rows: plaintiffs
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+edit:
+  - name.first
+confirm: True
+
+---
+continue button field: users.revisit
+question: |
+  Edit users
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+---
+table: users.table
+rows: users
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Phone number: |
+      row_item.phone_number if defined("row_item.phone_number") else ""
+  - Mobile number: |
+      row_item.mobile_number if defined("row_item.mobile_number") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.zip") else ""
+  - Email: |
+      row_item.email if defined("row_item.email") else ""
+  - Signature: |
+      row_item.signature if defined("row_item.signature") else ""
+edit:
+  - name.first
+  - phone_number
+  - mobile_number
+  - address.zip
+  - email
+  - signature
+confirm: True
+
+---
+id: download taxlien_answer
+event: taxlien_answer_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_taxlien_answer'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+progress: 100
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  - taxlien_answer_Post_interview_instructions: ALDocument.using(title="Instructions", filename="taxlien_answer_next_steps.docx", enabled=True, has_addendum=False)
+  - taxlien_answer_attachment: ALDocument.using(title="Tax-lien answer", filename="taxlien_answer", enabled=True, has_addendum=True, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+# Bundles group the ALDocuments into separate downloads, such as for court and for the user
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[taxlien_answer_Post_interview_instructions, taxlien_answer_attachment], filename="taxlien_answer", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[taxlien_answer_attachment],  filename="taxlien_answer", title="All forms to deliver to court", enabled=True)
+---
+# Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
+# used for "preview" and "final" keys, and logic in the template checks the value of 
+# `i` to show or hide the user's signature
+attachment:
+  name: Post-interview-Instructions
+  filename: taxlien_answer_next_steps
+  docx template file: taxlien_answer_next_steps.docx
+  variable name: taxlien_answer_Post_interview_instructions[i]
+  skip undefined: True
+  tagged pdf: True
+---
+attachment:
+  name: taxlien answer
+  filename: taxlien_answer
+  variable name: taxlien_answer_attachment[i]
+  skip undefined: True
+  pdf template file: taxlien_answer.pdf
+  fields:
+      - "trial_court_county": ${ trial_court.address.county }
+      - "trial_court_county__1": ${ trial_court.address.county }
+      - "docket_number": ${ docket_number }
+      - "docket_number__1": ${ docket_number }
+      - "plaintiffs_name": ${ plaintiffs[0] }
+      - "plaintiffs_name__1": ${ plaintiffs[0] }
+      - "users_name": ${ users[0] }
+      - "users1_name": ${ users[0] }
+      - "users1_name__1": ${ users[0] }
+      - "users_name__1": ${ users[0] }
+      - "users2_name": ${ users[1] }
+      - "users3_name": ${ users[2] }
+      - "if_users_is_other_specify": ${ if_users_is_other_specify }
+      - "users_is_owner": ${ users_is_owner }
+      - "users_is_mortgagee": ${ users_is_mortgagee }
+      - "users_is_other": ${ users_is_other }
+      - "users_claims_right_to_redeem": ${ users_claims_right_to_redeem }
+      - "users_questions_plaintiff_validity": ${ users_questions_plaintiff_validity }
+      - "if_users_questions_validity_specify": ${ taxlien_answer_attachment.safe_value("if_users_questions_validity_specify") }
+      - "bbo_number_if_attorney": ${ bbo_number_if_attorney }
+      - "users1_phone_number": ${ users[0].phone_number }
+      - "users1_firm": ${ users1_firm }
+      - "users1_mobile_number": ${ users[0].mobile_number }
+      - "users1_fax": ${ users1_fax }
+      - "users1_address_unit": ${ users[0].address.unit }
+      - "users1_address_address": ${ users[0].address.address }
+      - "users1_address_city": ${ users[0].address.city }
+      - "users1_address_state": ${ users[0].address.state }
+      - "users1_address_zip": ${ users[0].address.zip }
+      - "users1_email": ${ users[0].email }
+      - "users1_signature": ${ users[0].signature }
+      - "users1_signature__1": ${ users[0].signature }
+      - "signature_date": ${ signature_date }
+      - "signature_date__1": ${ signature_date }
+      - "names_address_of_persons_served": ${ taxlien_answer_attachment.safe_value("names_address_of_persons_served") }
+---
+code: |
+  taxlien_answer_attachment.overflow_fields["if_users_questions_validity_specify"].overflow_trigger = 1068
+  taxlien_answer_attachment.overflow_fields["if_users_questions_validity_specify"].label = "If users questions validity specify"
+  taxlien_answer_attachment.overflow_fields["names_address_of_persons_served"].overflow_trigger = 2116
+  taxlien_answer_attachment.overflow_fields["names_address_of_persons_served"].label = "Names address of persons served"
+  taxlien_answer_attachment.overflow_fields.gathered = True
+
+
+
