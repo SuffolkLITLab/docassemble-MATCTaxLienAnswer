@@ -86,7 +86,7 @@ code: |
   user_ask_role = "defendant"
   users.gather()
   set_parts(subtitle=str(users))
-  if_users_is_other_specify
+  user_relationship_to_property
   users_claims_right_to_redeem
   set_progress(16)
   bbo_number_if_attorney
@@ -148,14 +148,17 @@ id: What is the users relation to the property
 question: |
   What is the users relation to the property?
 fields:
-  - "Users is owner": users_is_owner
-    datatype: yesnoradio
-  - "Users is mortgagee": users_is_mortgagee
-    datatype: yesnoradio
-  - "Users is other": users_is_other
-    datatype: yesnoradio  
-  - "If users is other specify": if_users_is_other_specify
+  - I am the: user_relationship_to_property
+    datatype: radio
+    choices:
+      - Owner: owner
+      - Mortgagee: mortgagee
+      - Other: other
+  - "Other": if_users_is_other_specify
     maxlength: 59
+    show if: 
+      variable: user_relationship_to_property
+      is: other  
 ---
 id: What is the users response to the tax lien
 question: |
@@ -248,18 +251,6 @@ review:
     button: |
       **If users is other specify**:
       ${ if_users_is_other_specify }
-  - Edit: users_is_owner
-    button: |
-      **Users is owner**:
-      ${ users_is_owner }
-  - Edit: users_is_mortgagee
-    button: |
-      **Users is mortgagee**:
-      ${ users_is_mortgagee }
-  - Edit: users_is_other
-    button: |
-      **Users is other**:
-      ${ users_is_other }
   - Edit: users_claims_right_to_redeem
     button: |
       **Users claims right to redeem**:
@@ -404,9 +395,9 @@ attachment:
       - "users2_name": ${ users[1] }
       - "users3_name": ${ users[2] }
       - "if_users_is_other_specify": ${ if_users_is_other_specify }
-      - "users_is_owner": ${ users_is_owner }
-      - "users_is_mortgagee": ${ users_is_mortgagee }
-      - "users_is_other": ${ users_is_other }
+      - "users_is_owner": ${ user_relationship_to_property == "owner" }
+      - "users_is_mortgagee": ${ user_relationship_to_property == "mortgagee" }
+      - "users_is_other": ${ user_relationship_to_property == "other" }
       - "users_claims_right_to_redeem": ${ users_claims_right_to_redeem }
       - "users_questions_plaintiff_validity": ${ users_questions_plaintiff_validity }
       - "if_users_questions_validity_specify": ${ taxlien_answer_attachment.safe_value("if_users_questions_validity_specify") }
