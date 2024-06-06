@@ -43,7 +43,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
                 out.setdefault(package, []).append(prefix+name)
     return out
 
-setup(name='docassemble.TaxlienAnswer',
+setup(name='docassemble.MATCTaxLienAnswer',
       version='1.0',
       description=('Tax-lien answer'),
       long_description='# docassemble.TaxlienAnswer\r\n\r\nTax-lien answer\r\n\r\n## Author\r\n\r\nBenjamin Eilert and Karla Fuentes\r\n\r\n',
@@ -56,6 +56,6 @@ setup(name='docassemble.TaxlienAnswer',
       namespace_packages=['docassemble'],
       install_requires=['docassemble.AssemblyLine>=2.28.1'],
       zip_safe=False,
-      package_data=find_package_data(where='docassemble/TaxlienAnswer/', package='docassemble.TaxlienAnswer'),
+      package_data=find_package_data(where='docassemble/MATCTaxLienAnswer/', package='docassemble.MATCTaxLienAnswer'),
      )
 
