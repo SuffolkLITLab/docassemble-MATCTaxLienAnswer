@@ -87,7 +87,7 @@ code: |
   users.gather()
   set_parts(subtitle=str(users))
   user_relationship_to_property
-  users_claims_right_to_redeem
+  users_response_to_taxlien
   set_progress(16)
   bbo_number_if_attorney
   names_address_of_persons_served
@@ -162,14 +162,18 @@ fields:
 ---
 id: What is the users response to the tax lien
 question: |
-  What is the users response to the tax-lien?
+  What is the users response to the Tax-Lien?
 fields:
-  - "Users claims right to redeem": users_claims_right_to_redeem
-    datatype: yesnoradio
-  - "Users questions plaintiff validity": users_questions_plaintiff_validity
-    datatype: yesnoradio
-  - "If users questions validity specify": if_users_questions_validity_specify
-    input type: area
+  - Users: users_response_to_taxlien
+    datatype: radio
+    choices: 
+      - Claims right to redeem the title by paying what the court says they owe: claims right to redeem the title by paying what the court says they owe
+      - Questions the validity of plaintiff's title: questions the validity of plaintiffs title
+  - " Reason(s) for questioning the validity of plaintiff's title": if_users_questions_validity_specify
+    input type: area 
+    show if: 
+      variable: users_response_to_taxlien
+      is: questions the validity of plaintiffs title
 ---
 id: Please provide your contact or your counsels contact
 question: |
@@ -251,14 +255,6 @@ review:
     button: |
       **If users is other specify**:
       ${ if_users_is_other_specify }
-  - Edit: users_claims_right_to_redeem
-    button: |
-      **Users claims right to redeem**:
-      ${ users_claims_right_to_redeem }
-  - Edit: users_questions_plaintiff_validity
-    button: |
-      **Users questions plaintiff validity**:
-      ${ users_questions_plaintiff_validity }
   - Edit: if_users_questions_validity_specify
     button: |
       **If users questions validity specify**:
@@ -398,8 +394,8 @@ attachment:
       - "users_is_owner": ${ user_relationship_to_property == "owner" }
       - "users_is_mortgagee": ${ user_relationship_to_property == "mortgagee" }
       - "users_is_other": ${ user_relationship_to_property == "other" }
-      - "users_claims_right_to_redeem": ${ users_claims_right_to_redeem }
-      - "users_questions_plaintiff_validity": ${ users_questions_plaintiff_validity }
+      - "users_claims_right_to_redeem": ${ users_response_to_taxlien == "Claims right to redeem the title by paying what the court says they owe" }
+      - "users_questions_plaintiff_validity": ${ users_response_to_taxlien == "Questions the validity of plaintiff's title" }
       - "if_users_questions_validity_specify": ${ taxlien_answer_attachment.safe_value("if_users_questions_validity_specify") }
       - "bbo_number_if_attorney": ${ bbo_number_if_attorney }
       - "users1_phone_number": ${ users[0].phone_number }
