@@ -114,6 +114,7 @@ code: |
   taxlien_answer_intro
   interview_order_taxlien_answer
   signature_date
+  basic_questions_signature_flow
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
       persistent=True,
@@ -175,6 +176,14 @@ fields:
       variable: users_response_to_taxlien
       is: questions the validity of plaintiffs title
 ---
+id: Signature page
+question: |
+  By signing your name, you agree to
+  our terms and conditions.
+signature: users1_signature 
+under: |
+  ${users[0].signature}
+--- 
 id: Please provide your contact or your counsels contact
 question: |
   Please provide your contact or your counsels contact
