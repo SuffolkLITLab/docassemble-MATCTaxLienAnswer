@@ -86,6 +86,7 @@ code: |
   user_ask_role = "defendant"
   users.gather()
   set_parts(subtitle=str(users))
+  who_is_the_user
   user_relationship_to_property
   users_response_to_taxlien
   set_progress(16)
@@ -112,8 +113,10 @@ mandatory: True
 code: |
   al_intro_screen
   taxlien_answer_intro
+  who_is_the_user
   interview_order_taxlien_answer
   signature_date
+  basic_questions_signature_flow
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
       persistent=True,
@@ -122,12 +125,12 @@ code: |
           "reached_interview_end": True,
       },
   )
-  taxlien_answer_download
+  taxlien_answer_download 
 ---
 id: Taxlien_answer
 continue button field: taxlien_answer_intro
 question: |
-  Tax-lien answer
+  Tax-Lien answer
 subquestion: |
   This interview will help you respond to a tax lien against you.
   
@@ -144,7 +147,28 @@ subquestion: |
 
   Most people take about 10 minutes to complete this interview.
 ---
-id: What is the users relation to the property
+id: Who_is_filling_out_this_form
+question: | 
+  Who is filling out this form?
+fields:
+  - I am: who_is_the_user
+    datatype: radio
+    choices: 
+      - The Defendant: defendant 
+      - An Attorney: attorney 
+  - "BBO number": bbo_number_if_attorney
+    datatype: text
+    show if: 
+      variable: who_is_the_user
+      is: attorney
+  - "Attorney's Firm or Agency Name": users1_firm 
+    required: False
+    input type: area 
+    show if: 
+      variable: who_is_the_user
+      is: attorney
+---
+id: What_is_the_users_relation_to_the_property
 question: |
   What is the users relation to the property?
 fields:
@@ -155,12 +179,12 @@ fields:
       - Mortgagee: mortgagee
       - Other: other
   - "Other": if_users_is_other_specify
-    maxlength: 59
+    input type: area
     show if: 
       variable: user_relationship_to_property
       is: other  
 ---
-id: What is the users response to the tax lien
+id: What_is_the_users_response_to_the_tax_lien
 question: |
   What is the users response to the Tax-Lien?
 fields:
@@ -175,13 +199,18 @@ fields:
       variable: users_response_to_taxlien
       is: questions the validity of plaintiffs title
 ---
+id: Signature page
+question: |
+  By signing your name, you agree to
+  our terms and conditions.
+signature: users1_signature 
+under: |
+  ${users[0].signature}
+--- 
 id: Please provide your contact or your counsels contact
 question: |
   Please provide your contact or your counsels contact
 fields:
-  - "Bbo number if attorney": bbo_number_if_attorney
-    maxlength: 30
-    required: False
   - "Users1 firm": users1_firm
     input type: area
     maxlength: 130
@@ -390,6 +419,10 @@ attachment:
       - "users_name__1": ${ users[0] }
       - "users2_name": ${ users[1] }
       - "users3_name": ${ users[2] }
+      - "bbo_number_if_attorney": ${ bbo_number_if_attorney } 
+      - "users1_firm": ${ users1_firm }
+      - "users_is_defendant": ${ who_is_the_user == "defendant" }
+      - "users_is_attorney": ${ who_is_the_user == "attorney" }
       - "if_users_is_other_specify": ${ if_users_is_other_specify }
       - "users_is_owner": ${ user_relationship_to_property == "owner" }
       - "users_is_mortgagee": ${ user_relationship_to_property == "mortgagee" }
