@@ -90,8 +90,8 @@ code: |
   user_relationship_to_property
   users_response_to_taxlien
   set_progress(16)
-  bbo_number_if_attorney
-  names_address_of_persons_served
+  #bbo_number_if_attorney
+  #names_address_of_persons_served
   trial_court.address.address
   set_progress(32)
   docket_number
@@ -207,15 +207,19 @@ signature: users1_signature
 under: |
   ${users[0].signature}
 --- 
-id: Please provide your contact or your counsels contact
+id: your contact information
 question: |
-  Please provide your contact or your counsels contact
-fields:
-  - "Users1 firm": users1_firm
-    input type: area
-    maxlength: 130
-  - "Users1 fax": users1_fax
-    maxlength: 30
+  What is your contact information?
+fields:  
+  - Mobile number: users[0].mobile_number
+    required: False
+  - Other phone number: users[0].phone_number
+    required: False
+  - Email address: users[0].email    
+    datatype: email
+    required: False
+  - Fax number: users[0].fax_number
+    required: False
 ---
 id: Please provide the contact information for those served by this answer
 question: |
@@ -434,7 +438,7 @@ attachment:
       - "users1_phone_number": ${ users[0].phone_number }
       - "users1_firm": ${ users1_firm }
       - "users1_mobile_number": ${ users[0].mobile_number }
-      - "users1_fax": ${ users1_fax }
+      - "users1_fax": ${ users[0].fax_number }
       - "users1_address_unit": ${ users[0].address.unit }
       - "users1_address_address": ${ users[0].address.address }
       - "users1_address_city": ${ users[0].address.city }
