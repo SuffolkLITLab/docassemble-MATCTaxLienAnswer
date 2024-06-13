@@ -10,7 +10,7 @@ metadata:
   description: |-
     This interview helps someone in Massachusetts respond to a tax lien against them.
   can_I_use_this_form: |
-    If you are someone who has a tax lien against them, you can use this interview to respond to the lien by challenging the validity of the other party's claim or accepting to pay what the court determines you owe.
+    If you are someone who has a tax lien against them, you can use this interview to respond to the lien by challenging the validity of the other party's title or accepting to pay what the court determines you owe.
   before_you_start: |
     This interview will help you respond to a tax lien.
     
@@ -91,7 +91,7 @@ code: |
   users_response_to_taxlien
   set_progress(16)
   #bbo_number_if_attorney
-  #names_address_of_persons_served
+  names_address_of_persons_served
   trial_court.address.address
   set_progress(32)
   docket_number
@@ -136,8 +136,8 @@ subquestion: |
   
   Before you get started, please gather:
   
-  1. Your tax-lien citation.
-  2. The contact information for both parties and or their counsel. 
+  1. Your Tax Lien Complaint and Citation. 
+ 
   
   
   When you are finished, you will need to:
@@ -200,7 +200,14 @@ fields:
       variable: users_response_to_taxlien
       is: questions the validity of plaintiffs title
 ---
-id: Signature page
+id: Certificate of Service
+question: |
+   I will serve this Tax Lien Answer by delivering or mailing a copy of it by first class mail postage prepaid to the following:
+fields:
+  - provide name(s) and address(es) below: names_address_of_persons_served 
+    input type: area
+---
+id: Signature_page
 question: |
   By signing your name, you agree to
   our terms and conditions.
@@ -221,13 +228,6 @@ fields:
     required: False
   - Fax number: users[0].fax_number
     required: False
----
-id: Please provide the contact information for those served by this answer
-question: |
-  Please provide the contact information for those served by this answer:
-fields:
-  - "Names address of persons served": names_address_of_persons_served
-    input type: area
 ---
 id: preview taxlien_answer
 question: |
@@ -450,7 +450,7 @@ attachment:
       - "users1_signature__1": ${ users[0].signature }
       - "signature_date": ${ signature_date }
       - "signature_date__1": ${ signature_date }
-      - "names_address_of_persons_served": ${ taxlien_answer_attachment.safe_value("names_address_of_persons_served") }
+      - "names_address_of_persons_served": ${ names_address_of_persons_served }
 ---
 code: |
   taxlien_answer_attachment.overflow_fields["if_users_questions_validity_specify"].overflow_trigger = 1068
