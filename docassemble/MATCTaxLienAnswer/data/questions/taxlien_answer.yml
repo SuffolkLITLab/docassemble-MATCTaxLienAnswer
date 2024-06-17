@@ -86,6 +86,7 @@ code: |
   user_ask_role = "defendant"
   users.gather()
   set_parts(subtitle=str(users))
+  Preview_of_taxlien_answer
   who_is_the_user
   user_relationship_to_property
   users_response_to_taxlien
@@ -113,6 +114,7 @@ mandatory: True
 code: |
   al_intro_screen
   taxlien_answer_intro
+  Preview_of_taxlien_answer
   who_is_the_user
   interview_order_taxlien_answer
   signature_date
@@ -147,6 +149,16 @@ subquestion: |
   If you are someone who has a tax lien against them, you can use this interview to respond to the lien by challenging the validity of the other party's claim or accepting to pay what the court determines you owe.
 
   Most people take about 10 minutes to complete this interview.
+---
+id: Preview_of_taxlien_answer
+continue button field: Preview_of_taxlien_answer
+question: |
+  The following is a preview of the Tax Lien Answer Form. 
+subquestion: |
+  
+  
+  [FILE Tax_Lien_Answer_Preview.jpg, 50%]
+  [FILE Tax_Lien_Answer_Preview_Page_2.jpg, 50%]
 ---
 id: Who_is_filling_out_this_form
 question: | 
