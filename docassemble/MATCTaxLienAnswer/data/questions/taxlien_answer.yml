@@ -10,7 +10,7 @@ metadata:
   description: |-
     This interview helps someone in Massachusetts respond to a tax lien against them.
   can_I_use_this_form: |
-    If you are someone who has a tax lien against them, you can use this interview to respond to the lien by challenging the validity of the other party's claim or accepting to pay what the court determines you owe.
+    If you are someone who has a tax lien against them, you can use this interview to respond to the lien by challenging the validity of the other party's title or accepting to pay what the court determines you owe.
   before_you_start: |
     This interview will help you respond to a tax lien.
     
@@ -86,12 +86,13 @@ code: |
   user_ask_role = "defendant"
   users.gather()
   set_parts(subtitle=str(users))
+  Preview_of_taxlien_answer
+  who_is_the_user
   user_relationship_to_property
   users_response_to_taxlien
   set_progress(16)
-  bbo_number_if_attorney
-  names_address_of_persons_served
-  trial_court.address.address
+  #bbo_number_if_attorney
+  #trial_court.address.address
   set_progress(32)
   docket_number
   plaintiffs.gather()
@@ -100,7 +101,9 @@ code: |
   users[0].mobile_number
   users[0].address.address
   users[0].email
+  trial_court.address.address
   set_progress(64)
+  names_address_of_persons_served
   signature_date
   interview_order_taxlien_answer = True
 ---
@@ -112,7 +115,10 @@ mandatory: True
 code: |
   al_intro_screen
   taxlien_answer_intro
+  Preview_of_taxlien_answer
+  who_is_the_user
   interview_order_taxlien_answer
+  names_address_of_persons_served
   signature_date
   basic_questions_signature_flow
   # Store anonymous data for analytics / statistics
@@ -123,18 +129,19 @@ code: |
           "reached_interview_end": True,
       },
   )
-  taxlien_answer_download
+  Tax_Lien_Form_download 
 ---
 id: Taxlien_answer
 continue button field: taxlien_answer_intro
 question: |
-  Tax-lien answer
+  Tax-Lien answer
 subquestion: |
-  This interview will help you respond to a tax lien against you.
+  This interview is provided to help you fill out the forms required to file and serve the Tax Lien Answer and Certificate of Service. The information you provide will be entered on the court form(s) in the correct places.
   
   Before you get started, please gather:
   
-  1. The contact information for both parties and or their counsel.
+  1. Your Tax Lien Complaint and Citation. 
+ 
   
   
   When you are finished, you will need to:
@@ -145,7 +152,38 @@ subquestion: |
 
   Most people take about 10 minutes to complete this interview.
 ---
-id: What is the users relation to the property
+id: Preview_of_taxlien_answer
+continue button field: Preview_of_taxlien_answer
+question: |
+  The following is a preview of the Tax Lien Answer Form. 
+subquestion: |
+  
+  
+  [FILE Tax_Lien_Answer_Preview.jpg, 50%]
+  [FILE Tax_Lien_Answer_Preview_Page_2.jpg, 50%]
+---
+id: Who_is_filling_out_this_form
+question: | 
+  Who is filling out this form?
+fields:
+  - I am: who_is_the_user
+    datatype: radio
+    choices: 
+      - The Defendant: defendant 
+      - An Attorney: attorney          
+  - "BBO number": bbo_number_if_attorney
+    datatype: text
+    show if: 
+      variable: who_is_the_user
+      is: attorney
+  - "Attorney's Firm or Agency Name": users1_firm 
+    required: False
+    input type: area 
+    show if: 
+      variable: who_is_the_user
+      is: attorney
+---
+id: What_is_the_users_relation_to_the_property
 question: |
   What is the users relation to the property?
 fields:
@@ -156,53 +194,54 @@ fields:
       - Mortgagee: mortgagee
       - Other: other
   - "Other": if_users_is_other_specify
-    maxlength: 59
+    input type: area
     show if: 
       variable: user_relationship_to_property
       is: other  
 ---
-id: What is the users response to the tax lien
+id: What_is_the_users_response_to_the_tax_lien
 question: |
-  What is the users response to the Tax-Lien?
+  What is the defendant(s) response to the Tax-Lien?
 fields:
-  - Users: users_response_to_taxlien
+  - Defendant(s): users_response_to_taxlien
     datatype: radio
     choices: 
-      - Claims right to redeem the title by paying what the court says they owe: claims right to redeem the title by paying what the court says they owe
-      - Questions the validity of plaintiff's title: questions the validity of plaintiffs title
+      - claim(s) the right to redeem the title by paying the amount owed as determined by the court: claims right to redeem the title by paying what the court says they owe
+      - questions the validity of the Plaintiff's title under the relevant instrument of taking for taxes or collector's deed at issue in this case: questions the validity of plaintiffs title
   - " Reason(s) for questioning the validity of plaintiff's title": if_users_questions_validity_specify
     input type: area 
     show if: 
       variable: users_response_to_taxlien
       is: questions the validity of plaintiffs title
 ---
-id: Signature page
+id: Certificate of Service
+question: |
+   I will serve this Tax Lien Answer by delivering or mailing a copy of it by first class mail postage prepaid to the following:
+fields:
+  - provide name(s) and address(es) below: names_address_of_persons_served 
+    input type: area
+---
+id: Signature_page
 question: |
   By signing your name, you agree to
   our terms and conditions.
-signature: users1_signature 
+signature: users[0].signature
 under: |
-  ${users[0].signature}
+  ${ users[0].signature }
 --- 
-id: Please provide your contact or your counsels contact
+id: your contact information
 question: |
-  Please provide your contact or your counsels contact
-fields:
-  - "Bbo number if attorney": bbo_number_if_attorney
-    maxlength: 30
+  What is your contact information?
+fields:  
+  - Mobile number: users[0].mobile_number
     required: False
-  - "Users1 firm": users1_firm
-    input type: area
-    maxlength: 130
-  - "Users1 fax": users1_fax
-    maxlength: 30
----
-id: Please provide the contact information for those served by this answer
-question: |
-  Please provide the contact information for those served by this answer:
-fields:
-  - "Names address of persons served": names_address_of_persons_served
-    input type: area
+  - Other phone number: users[0].phone_number
+    required: False
+  - Email address: users[0].email    
+    datatype: email
+    required: False
+  - Fax number: users[0].fax_number
+    required: False
 ---
 id: preview taxlien_answer
 question: |
@@ -341,7 +380,7 @@ confirm: True
 
 ---
 id: download taxlien_answer
-event: taxlien_answer_download
+event: Tax_Lien_Form_download
 question: |
   All done
 subquestion: |
@@ -362,7 +401,7 @@ progress: 100
 # ALDocument objects specify the metadata for each template
 objects:
   - taxlien_answer_Post_interview_instructions: ALDocument.using(title="Instructions", filename="taxlien_answer_next_steps.docx", enabled=True, has_addendum=False)
-  - taxlien_answer_attachment: ALDocument.using(title="Tax-lien answer", filename="taxlien_answer", enabled=True, has_addendum=True, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - taxlien_answer_attachment: ALDocument.using(title="Tax-lien answer", filename="Tax_Lien__Form", enabled=True, has_addendum=True, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
@@ -382,10 +421,10 @@ attachment:
 ---
 attachment:
   name: taxlien answer
-  filename: taxlien_answer
+  filename: Tax_Lien_Form
   variable name: taxlien_answer_attachment[i]
   skip undefined: True
-  pdf template file: taxlien_answer.pdf
+  pdf template file: Tax-Lien-_Form.pdf
   fields:
       - "trial_court_county": ${ trial_court.address.county }
       - "trial_court_county__1": ${ trial_court.address.county }
@@ -399,6 +438,10 @@ attachment:
       - "users_name__1": ${ users[0] }
       - "users2_name": ${ users[1] }
       - "users3_name": ${ users[2] }
+      - "bbo_number_if_attorney": ${ bbo_number_if_attorney } 
+      - "users1_firm": ${ users1_firm }
+      - "users_is_defendant": ${ who_is_the_user == "defendant" }
+      - "users_is_attorney": ${ who_is_the_user == "attorney" }
       - "if_users_is_other_specify": ${ if_users_is_other_specify }
       - "users_is_owner": ${ user_relationship_to_property == "owner" }
       - "users_is_mortgagee": ${ user_relationship_to_property == "mortgagee" }
@@ -410,7 +453,7 @@ attachment:
       - "users1_phone_number": ${ users[0].phone_number }
       - "users1_firm": ${ users1_firm }
       - "users1_mobile_number": ${ users[0].mobile_number }
-      - "users1_fax": ${ users1_fax }
+      - "users1_fax": ${ users[0].fax_number }
       - "users1_address_unit": ${ users[0].address.unit }
       - "users1_address_address": ${ users[0].address.address }
       - "users1_address_city": ${ users[0].address.city }
@@ -421,7 +464,7 @@ attachment:
       - "users1_signature__1": ${ users[0].signature }
       - "signature_date": ${ signature_date }
       - "signature_date__1": ${ signature_date }
-      - "names_address_of_persons_served": ${ taxlien_answer_attachment.safe_value("names_address_of_persons_served") }
+      - "names_address_of_persons_served": ${ names_address_of_persons_served }
 ---
 code: |
   taxlien_answer_attachment.overflow_fields["if_users_questions_validity_specify"].overflow_trigger = 1068
