@@ -103,7 +103,7 @@ code: |
   users[0].email
   trial_court.address.address
   set_progress(64)
-  names_address_of_persons_served
+  names_address_persons_served
   signature_date
   interview_order_taxlien_answer = True
 ---
@@ -118,7 +118,7 @@ code: |
   Preview_of_taxlien_answer
   who_is_the_user
   interview_order_taxlien_answer
-  names_address_of_persons_served
+  names_address_persons_served
   signature_date
   basic_questions_signature_flow
   # Store anonymous data for analytics / statistics
@@ -171,7 +171,7 @@ fields:
     choices: 
       - The Defendant: defendant 
       - An Attorney: attorney          
-  - "BBO number": bbo_number_if_attorney
+  - "BBO number": bbo_number
     datatype: text
     show if: 
       variable: who_is_the_user
@@ -193,7 +193,7 @@ fields:
       - Owner: owner
       - Mortgagee: mortgagee
       - Other: other
-  - "Other": if_users_is_other_specify
+  - "Other": if_user_is_other_specify
     input type: area
     show if: 
       variable: user_relationship_to_property
@@ -206,19 +206,19 @@ fields:
   - Defendant(s): users_response_to_taxlien
     datatype: radio
     choices: 
-      - claim(s) the right to redeem the title by paying the amount owed as determined by the court: claims right to redeem the title by paying what the court says they owe
-      - questions the validity of the Plaintiff's title under the relevant instrument of taking for taxes or collector's deed at issue in this case: questions the validity of plaintiffs title
-  - " Reason(s) for questioning the validity of plaintiff's title": if_users_questions_validity_specify
+      - claim(s) the right to redeem the title by paying the amount owed as determined by the court: Claims right to redeem the title by paying what the court says they owe
+      - questions the validity of the Plaintiff's title under the relevant instrument of taking for taxes or collector's deed at issue in this case: Questions the validity of plaintiffs title
+  - " Reason(s) for questioning the validity of plaintiff's title": if_user_questions_validity_specify_reason
     input type: area 
     show if: 
       variable: users_response_to_taxlien
-      is: questions the validity of plaintiffs title
+      is: Questions the validity of plaintiffs title
 ---
 id: Certificate of Service
 question: |
    I will serve this Tax Lien Answer by delivering or mailing a copy of it by first class mail postage prepaid to the following:
 fields:
-  - provide name(s) and address(es) below: names_address_of_persons_served 
+  - provide name(s) and address(es) below: names_address_persons_served 
     input type: area
 ---
 id: Signature_page
@@ -299,18 +299,18 @@ review:
       % for item in users:
         * ${ item }
       % endfor
-  - Edit: if_users_is_other_specify
+  - Edit: if_user_is_other_specify
     button: |
-      **If users is other specify**:
-      ${ if_users_is_other_specify }
-  - Edit: if_users_questions_validity_specify
+      **If user is other specify**:
+      ${ if_user_is_other_specify }
+  - Edit: if_user_questions_validity_specify_reason
     button: |
-      **If users questions validity specify**:
-      > ${ single_paragraph(if_users_questions_validity_specify) }
-  - Edit: bbo_number_if_attorney
+      **If user questions validity specify reason**:
+      > ${ single_paragraph(if_user_questions_validity_specify_reason) }
+  - Edit: bbo_number
     button: |
-      **Bbo number if attorney**:
-      ${ bbo_number_if_attorney }
+      **Bbo number **:
+      ${ bbo_number }
   - Edit: users1_firm
     button: |
       **Users1 firm**:
@@ -323,10 +323,10 @@ review:
     button: |
       **Date of signature**:
       ${ signature_date }
-  - Edit: names_address_of_persons_served
+  - Edit: names_address_persons_served
     button: |
-      **Names address of persons served**:
-      > ${ single_paragraph(names_address_of_persons_served) }
+      **Names address persons served**:
+      > ${ single_paragraph(names_address_persons_served) }
 ---
 continue button field: plaintiffs.revisit
 question: |
@@ -438,18 +438,18 @@ attachment:
       - "users_name__1": ${ users[0] }
       - "users2_name": ${ users[1] }
       - "users3_name": ${ users[2] }
-      - "bbo_number_if_attorney": ${ bbo_number_if_attorney } 
+      - "bbo_number": ${ bbo_number } 
       - "users1_firm": ${ users1_firm }
       - "users_is_defendant": ${ who_is_the_user == "defendant" }
       - "users_is_attorney": ${ who_is_the_user == "attorney" }
-      - "if_users_is_other_specify": ${ if_users_is_other_specify }
-      - "users_is_owner": ${ user_relationship_to_property == "owner" }
-      - "users_is_mortgagee": ${ user_relationship_to_property == "mortgagee" }
-      - "users_is_other": ${ user_relationship_to_property == "other" }
+      - "if_user_is_other_specify": ${ if_user_is_other_specify }
+      - "user_is_owner": ${ user_relationship_to_property == "owner" }
+      - "user_is_mortgagee": ${ user_relationship_to_property == "mortgagee" }
+      - "user_is_other": ${ user_relationship_to_property == "other" }
       - "users_claims_right_to_redeem": ${ users_response_to_taxlien == "Claims right to redeem the title by paying what the court says they owe" }
-      - "users_questions_plaintiff_validity": ${ users_response_to_taxlien == "Questions the validity of plaintiff's title" }
-      - "if_users_questions_validity_specify": ${ taxlien_answer_attachment.safe_value("if_users_questions_validity_specify") }
-      - "bbo_number_if_attorney": ${ bbo_number_if_attorney }
+      - "users_question_plaintiff_validity": ${ users_response_to_taxlien == "Questions the validity of plaintiffs title" }
+      - "if_user_questions_validity_specify_reason": ${ taxlien_answer_attachment.safe_value("if_user_questions_validity_specify_reason") }
+      - "bbo_number": ${ bbo_number }
       - "users1_phone_number": ${ users[0].phone_number }
       - "users1_firm": ${ users1_firm }
       - "users1_mobile_number": ${ users[0].mobile_number }
@@ -464,13 +464,13 @@ attachment:
       - "users1_signature__1": ${ users[0].signature }
       - "signature_date": ${ signature_date }
       - "signature_date__1": ${ signature_date }
-      - "names_address_of_persons_served": ${ names_address_of_persons_served }
+      - "names_address_persons_served": ${ names_address_persons_served }
 ---
 code: |
-  taxlien_answer_attachment.overflow_fields["if_users_questions_validity_specify"].overflow_trigger = 1068
-  taxlien_answer_attachment.overflow_fields["if_users_questions_validity_specify"].label = "If users questions validity specify"
-  taxlien_answer_attachment.overflow_fields["names_address_of_persons_served"].overflow_trigger = 2116
-  taxlien_answer_attachment.overflow_fields["names_address_of_persons_served"].label = "Names address of persons served"
+  taxlien_answer_attachment.overflow_fields["if_user_questions_validity_specify_reason"].overflow_trigger = 1068
+  taxlien_answer_attachment.overflow_fields["if_user_questions_validity_specify_reason"].label = "Reason(s) for questioning the validity of plaintiff's title"
+  taxlien_answer_attachment.overflow_fields["names_address_persons_served"].overflow_trigger = 2116
+  taxlien_answer_attachment.overflow_fields["names_address_persons_served"].label = "Names address of persons served"
   taxlien_answer_attachment.overflow_fields.gathered = True
 
 
