@@ -106,6 +106,8 @@ code: |
   set_progress(16)
   #bbo_number_if_attorney
   #trial_court.address.address
+  names_address_of_persons_served
+  trial_court.address.address
   set_progress(32)
   #docket_number
   plaintiffs.gather()
