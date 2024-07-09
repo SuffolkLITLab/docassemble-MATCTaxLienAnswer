@@ -93,6 +93,8 @@ code: |
   set_progress(16)
   #bbo_number_if_attorney
   #trial_court.address.address
+  names_address_of_persons_served
+  trial_court.address.address
   set_progress(32)
   docket_number
   plaintiffs.gather()
@@ -221,13 +223,12 @@ fields:
   - provide name(s) and address(es) below: names_address_persons_served 
     input type: area
 ---
-id: Signature_page
+id: Certificate of Service
 question: |
-  By signing your name, you agree to
-  our terms and conditions.
-signature: users[0].signature
-under: |
-  ${ users[0].signature }
+   I will serve this Tax Lien Answer by delivering or mailing a copy of it by first class mail postage prepaid to the following:
+fields:
+  - provide name(s) and address(es) below: names_address_of_persons_served 
+    input type: area
 --- 
 id: your contact information
 question: |
