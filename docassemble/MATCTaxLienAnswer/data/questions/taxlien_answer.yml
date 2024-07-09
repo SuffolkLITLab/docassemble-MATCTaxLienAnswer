@@ -2,6 +2,9 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
 ---
+features: 
+  css: form-styles.css
+---
 metadata:
   title: >-
     Tax-lien answer
@@ -16,12 +19,12 @@ metadata:
     
     Before you get started, please gather:
     
-    1. The contact information for both parties and or their counsel.
+    *The contact information for both parties and or their counsel.
     
     
     When you are finished, you will need to:
     
-    1. Make sure that your answer is served to the other party or their counsel.
+    * Make sure that your answer is served to the other party or their counsel.
   maturity: production
   estimated_completion_minutes: 60
   estimated_completion_delta: 30
@@ -70,6 +73,7 @@ code: |
 ---
 objects:
   - users: ALPeopleList.using(there_are_any=True)
+  - other_parties: ALPeopleList.using(ask_number=True, target_number=1) 
 ---
 sections:
   - review_taxlien_answer: Review your answers
@@ -87,22 +91,31 @@ code: |
   users.gather()
   set_parts(subtitle=str(users))
   Preview_of_taxlien_answer
-  who_is_the_user
+  docket_number
+  property_address.address
+  #plaintiffs.gather()
+  al_person_answering
+  #users_address.address
+  #users[0].phone_number
   user_relationship_to_property
   users_response_to_taxlien
+  users_address.address
+  users[0].phone_number
+  users[0].mobile_number
+  users[0].email
   set_progress(16)
   #bbo_number_if_attorney
   #trial_court.address.address
   set_progress(32)
-  docket_number
+  #docket_number
   plaintiffs.gather()
-  users[0].phone_number
   set_progress(48)
-  users[0].mobile_number
-  users[0].address.address
-  users[0].email
-  trial_court.address.address
+  #users[0].mobile_number
+  #users[0].email
+  #trial_court.address.address
   set_progress(64)
+  #trial_court_county
+  #property_address.address
   names_address_persons_served
   signature_date
   interview_order_taxlien_answer = True
@@ -116,8 +129,17 @@ code: |
   al_intro_screen
   taxlien_answer_intro
   Preview_of_taxlien_answer
-  who_is_the_user
+  docket_number
+  property_address.address
+  #property_address.address_fields()
+  #plaintiffs.gather()
+  al_person_answering
   interview_order_taxlien_answer
+  users_address.address
+  users[0].phone_number
+  #trial_court_county
+  #property_address.address_fields()
+  plaintiffs.gather()
   names_address_persons_served
   signature_date
   basic_questions_signature_flow
@@ -134,60 +156,75 @@ code: |
 id: Taxlien_answer
 continue button field: taxlien_answer_intro
 question: |
-  Tax-Lien answer
+  Tax Lien Answer Form Introduction 
 subquestion: |
-  This interview is provided to help you fill out the forms required to file and serve the Tax Lien Answer and Certificate of Service. The information you provide will be entered on the court form(s) in the correct places.
+  This interview is provided to help you fill out the forms required to file and serve the Tax Lien Answer and Certificate of Service. The information you provide will be entered on the court form(s) in the correct places. 
   
+  * Attorneys: In questions referring to "You," "You" is your client.
+  * Defendant: Refers to the person who has the Tax Lien placed upon them!
+ 
   Before you get started, please gather:
   
-  1. Your Tax Lien Complaint and Citation. 
+  * Your Tax Lien Complaint and Citation. 
  
   
   
   When you are finished, you will need to:
   
-  1. Make sure that your answer is served to the other party or their counsel.
-
-  If you are someone who has a tax lien against them, you can use this interview to respond to the lien by challenging the validity of the other party's claim or accepting to pay what the court determines you owe.
+  * Serve this Tax Lien Answer by delivering or mailing a copy to the Plaintiff or their counsel.
 
   Most people take about 10 minutes to complete this interview.
 ---
 id: Preview_of_taxlien_answer
 continue button field: Preview_of_taxlien_answer
 question: |
-  The following is a preview of the Tax Lien Answer Form. 
+  The following is a preview of the Tax Lien Answer Form and Certificate of Service. 
 subquestion: |
-  
-  
-  [FILE Tax_Lien_Answer_Preview.jpg, 50%]
-  [FILE Tax_Lien_Answer_Preview_Page_2.jpg, 50%]
+  <div class="image-row">
+    <div class="image">[FILE Tax_Lien_Answer_Preview.jpg, 100%]</div>
+    <div class="image">[FILE Tax_Lien_Answer_Preview_Page_2.jpg, 100%]</div>
+  </div>  
 ---
 id: Who_is_filling_out_this_form
 question: | 
   Who is filling out this form?
 fields:
-  - I am: who_is_the_user
+  - I am: al_person_answering
     datatype: radio
     choices: 
-      - The Defendant: defendant 
-      - An Attorney: attorney          
+      - a self represented defendant: user 
+      - an attorney: attorney          
   - "BBO number": bbo_number
     datatype: text
     show if: 
-      variable: who_is_the_user
+      variable: al_person_answering
       is: attorney
   - "Attorney's Firm or Agency Name": users1_firm 
     required: False
     input type: area 
     show if: 
-      variable: who_is_the_user
+      variable: al_person_answering
       is: attorney
+under: |
+  Note: Defendant refers to the person who has the Tax Lien placed upon them!
+---
+sets: 
+  - users_address.address
+  - users_address.city
+id: Users current address 
+question: | 
+   What is your mailing address? 
+fields: 
+  - code: users_address.address_fields()
+---
+objects: 
+  - users_address: ALAddress
 ---
 id: What_is_the_users_relation_to_the_property
 question: |
-  What is the users relation to the property?
+  What is the defendant's relation to the property at issue?
 fields:
-  - I am the: user_relationship_to_property
+  - Defendant is the : user_relationship_to_property
     datatype: radio
     choices:
       - Owner: owner
@@ -201,47 +238,66 @@ fields:
 ---
 id: What_is_the_users_response_to_the_tax_lien
 question: |
-  What is the defendant(s) response to the Tax-Lien?
+  What is the defendant's response to the tax lien?
 fields:
-  - Defendant(s): users_response_to_taxlien
-    datatype: radio
+  - Defendant: users_response_to_taxlien
+    datatype: checkboxes  
     choices: 
-      - claim(s) the right to redeem the title by paying the amount owed as determined by the court: Claims right to redeem the title by paying what the court says they owe
-      - questions the validity of the Plaintiff's title under the relevant instrument of taking for taxes or collector's deed at issue in this case: Questions the validity of plaintiffs title
-  - " Reason(s) for questioning the validity of plaintiff's title": if_user_questions_validity_specify_reason
+      - Claims the right to redeem the title by paying the amount owed as determined by the Court: claims_right_to_redeem
+      - Questions the validity of the Plaintiff's title under the relevant instrument of taking for taxes or collector's deed at issue in this case: questions_the_validity
+    none of the above: False 
+  - "Reason(s) for questioning the validity of plaintiff's title": if_user_questions_validity_specify_reason
     input type: area 
-    show if: 
-      variable: users_response_to_taxlien
-      is: Questions the validity of plaintiffs title
+    show if: users_response_to_taxlien["questions_the_validity"] 
+under: |
+  Note: You may choose both options if necessary.
+---
+sets: 
+  - property_address.address
+  - property_address.city
+id: Property County
+question: |
+   What is the address of the property at issue?
+fields: 
+ - code: property_address.address_fields()
+--- 
+objects:
+  - property_address: ALAddress
 ---
 id: Certificate of Service
 question: |
    I will serve this Tax Lien Answer by delivering or mailing a copy of it by first class mail postage prepaid to the following:
 fields:
-  - provide name(s) and address(es) below: names_address_persons_served 
+  - provide name(s) and address(es) of the plaintiff(s) to be served below: names_address_persons_served 
     input type: area
 ---
 id: Signature_page
 question: |
-  By signing your name, you agree to
-  our terms and conditions.
+  Please sign your name below.
+subquestion: | 
+  By signing your name, you agree that all the information you provided is true and accurate to the best of your knowledge.
+  
+  Your signature also guarantees that you will serve this answer once completed, to the Plaintiff or their counsel. 
 signature: users[0].signature
 under: |
-  ${ users[0].signature }
+  ${ users[0] }
 --- 
 id: your contact information
 question: |
   What is your contact information?
 fields:  
   - Mobile number: users[0].mobile_number
-    required: False
-  - Other phone number: users[0].phone_number
+    required: False   
+  - Office or Home phone number: users[0].phone_number
     required: False
   - Email address: users[0].email    
     datatype: email
     required: False
   - Fax number: users[0].fax_number
     required: False
+validation code: |
+  if not (users[0].mobile_number or users[0].phone_number):
+    validation_error("You need to give at least one phone number", field="users[0].phone_number")
 ---
 id: preview taxlien_answer
 question: |
@@ -259,8 +315,8 @@ subquestion: |
   Remember to come back to this window to continue and sign your form.
 continue button field: taxlien_answer_preview_question    
 ---
-code: |
-  signature_fields = ['users[0].signature']
+#code: |
+#  signature_fields = ['users[0].signature']
 ---
 code: |
   # This is a placeholder for the addresses that will be searched
@@ -274,13 +330,13 @@ event: review_taxlien_answer
 question: |
   Review your answers
 review:
-  - Edit: trial_court
-    button: |
-      **Trial court**
+#  - Edit: trial_court
+#    button: |
+#      **Trial court**
   
-      % if defined("trial_court.address.county"):
-      * address: ${ trial_court.address.block() }
-      % endif
+#      % if defined("trial_court.address.county"):
+#      * address: ${ trial_court.address.block() }
+#      % endif
   - Edit: docket_number
     button: |
       **Docket number**:
@@ -426,8 +482,8 @@ attachment:
   skip undefined: True
   pdf template file: Tax-Lien-_Form.pdf
   fields:
-      - "trial_court_county": ${ trial_court.address.county }
-      - "trial_court_county__1": ${ trial_court.address.county }
+      - "trial_court_county": ${ property_address.normalized_address().county  }
+      - "trial_court_county__1": ${property_address.normalized_address().county }
       - "docket_number": ${ docket_number }
       - "docket_number__1": ${ docket_number }
       - "plaintiffs_name": ${ plaintiffs[0] }
@@ -440,25 +496,25 @@ attachment:
       - "users3_name": ${ users[2] }
       - "bbo_number": ${ bbo_number } 
       - "users1_firm": ${ users1_firm }
-      - "users_is_defendant": ${ who_is_the_user == "defendant" }
-      - "users_is_attorney": ${ who_is_the_user == "attorney" }
+      - "users_is_defendant": ${ al_person_answering == "defendant" }
+      - "users_is_attorney": ${ al_person_answering == "attorney" }
       - "if_user_is_other_specify": ${ if_user_is_other_specify }
       - "user_is_owner": ${ user_relationship_to_property == "owner" }
       - "user_is_mortgagee": ${ user_relationship_to_property == "mortgagee" }
       - "user_is_other": ${ user_relationship_to_property == "other" }
-      - "users_claims_right_to_redeem": ${ users_response_to_taxlien == "Claims right to redeem the title by paying what the court says they owe" }
-      - "users_question_plaintiff_validity": ${ users_response_to_taxlien == "Questions the validity of plaintiffs title" }
+      - "users_claims_right_to_redeem": ${ users_response_to_taxlien["claims_right_to_redeem"] }
+      - "users_question_plaintiff_validity": ${ users_response_to_taxlien["questions_the_validity"] }
       - "if_user_questions_validity_specify_reason": ${ taxlien_answer_attachment.safe_value("if_user_questions_validity_specify_reason") }
       - "bbo_number": ${ bbo_number }
       - "users1_phone_number": ${ users[0].phone_number }
       - "users1_firm": ${ users1_firm }
       - "users1_mobile_number": ${ users[0].mobile_number }
       - "users1_fax": ${ users[0].fax_number }
-      - "users1_address_unit": ${ users[0].address.unit }
-      - "users1_address_address": ${ users[0].address.address }
-      - "users1_address_city": ${ users[0].address.city }
-      - "users1_address_state": ${ users[0].address.state }
-      - "users1_address_zip": ${ users[0].address.zip }
+      - "users1_address_unit": ${ users_address.unit }
+      - "users1_address_address": ${ users_address.normalized_address().address }
+      - "users1_address_city": ${users_address.normalized_address().city }
+      - "users1_address_state": ${users_address.normalized_address().state }
+      - "users1_address_zip": ${ users_address.zip }
       - "users1_email": ${ users[0].email }
       - "users1_signature": ${ users[0].signature }
       - "users1_signature__1": ${ users[0].signature }
