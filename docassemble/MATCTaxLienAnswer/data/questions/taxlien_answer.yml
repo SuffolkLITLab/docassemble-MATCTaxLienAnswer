@@ -109,6 +109,7 @@ code: |
   set_progress(32)
   #docket_number
   plaintiffs.gather()
+  plaintiff_address.address
   set_progress(48)
   #users[0].mobile_number
   #users[0].email
@@ -116,7 +117,7 @@ code: |
   set_progress(64)
   #trial_court_county
   #property_address.address
-  names_address_persons_served
+  names_address_persons_served.address
   signature_date
   interview_order_taxlien_answer = True
 ---
@@ -140,7 +141,8 @@ code: |
   #trial_court_county
   #property_address.address_fields()
   plaintiffs.gather()
-  names_address_persons_served
+  plaintiff_address.address
+  names_address_persons_served.address
   signature_date
   basic_questions_signature_flow
   # Store anonymous data for analytics / statistics
@@ -158,7 +160,8 @@ continue button field: taxlien_answer_intro
 question: |
   Tax Lien Answer Form Introduction 
 subquestion: |
-  This interview is provided to help you fill out the forms required to file and serve the Tax Lien Answer and Certificate of Service. The information you provide will be entered on the court form(s) in the correct places. 
+  This interview is provided to help you fill out the forms required to file and serve the Tax Lien Answer and Certificate of Service. The information you provide will be entered on the court form(s) in the correct places. There is no cost to file an answer with the court. For more information on tax lien forclosures and frequantly asked questions 
+  [visit the following Land Court page](https://www.mass.gov/land-court-tax-lien-foreclosure-cases-resources).
   
   * Attorneys: In questions referring to "You," "You" is your client.
   * Defendant: Refers to the person who has the Tax Lien placed upon them!
@@ -184,6 +187,21 @@ subquestion: |
     <div class="image">[FILE Tax_Lien_Answer_Preview.jpg, 100%]</div>
     <div class="image">[FILE Tax_Lien_Answer_Preview_Page_2.jpg, 100%]</div>
   </div>  
+---
+id: What_is_your_case_docket_number 
+question: |
+  What is the Land Court docket number for your case?
+fields:
+  - Docket number: docket_number
+    required: False 
+under: |
+  Note: You can find your docket number in your Tax Lien Complaint or Citation. Also, the Court use the phrases "case number" and "docket number" interchangeably. 
+  
+  The following is an example of a docket number: XX TL XXXXXX
+  
+  Here is a 
+  [link to a video on how to find your docket number through the court system](https://www.mass.gov/info-details/how-to-search-court-dockets#video-introduction:-how-to-search-court-dockets-).
+mandatory: true
 ---
 id: Who_is_filling_out_this_form
 question: | 
@@ -264,12 +282,41 @@ fields:
 objects:
   - property_address: ALAddress
 ---
+sets: 
+  - plaintiff_address.address
+  - plaintiff_address.city
+id: Plaintiffs address 
+question: |
+  What is the plaintiff's service address?
+fields: 
+  - code: plaintiff_address.address_fields()
+under: |
+  The plaintiff's address can be found on the first page of your tax lien citation under the section labeled "Plaintiff's Service Address And Telephone Number."
+---
+objects:
+  - plaintiff_address: ALAddress
+---
+sets:
+  - names_address_persons_served.address
+  - names_address_persons_served.city
 id: Certificate of Service
 question: |
    I will serve this Tax Lien Answer by delivering or mailing a copy of it by first class mail postage prepaid to the following:
 fields:
-  - provide name(s) and address(es) of the plaintiff(s) to be served below: names_address_persons_served 
-    input type: area
+  - Provide names and addresses of plaintiffs to be served: names_address_persons_served
+    datatype: object_radio
+    choices: 
+      - plaintiff_address
+    object labeler: |
+     lambda y: y.on_one_line()
+    none of the above: |
+       Somewhere else 
+    disable others: True
+  - code: |
+      names_address_persons_served.address_fields()    
+---
+objects:
+  - names_address_persons_served: ALAddress
 ---
 id: Signature_page
 question: |
@@ -400,7 +447,6 @@ columns:
 edit:
   - name.first
 confirm: True
-
 ---
 continue button field: users.revisit
 question: |
@@ -521,12 +567,15 @@ attachment:
       - "signature_date": ${ signature_date }
       - "signature_date__1": ${ signature_date }
       - "names_address_persons_served": ${ names_address_persons_served }
+      - "plaintiff_address": ${ plaintiff_address.normalized_address().address }
+      - "plaintiff_address.city": ${ plaintiff_address.normalized_address().city }
+      - "plaintiff_address.state": ${ plaintiff_address.normalized_address().state }
 ---
 code: |
   taxlien_answer_attachment.overflow_fields["if_user_questions_validity_specify_reason"].overflow_trigger = 1068
   taxlien_answer_attachment.overflow_fields["if_user_questions_validity_specify_reason"].label = "Reason(s) for questioning the validity of plaintiff's title"
-  taxlien_answer_attachment.overflow_fields["names_address_persons_served"].overflow_trigger = 2116
-  taxlien_answer_attachment.overflow_fields["names_address_persons_served"].label = "Names address of persons served"
+  #taxlien_answer_attachment.overflow_fields["names_address_persons_served"].overflow_trigger = 2116
+  #taxlien_answer_attachment.overflow_fields["names_address_persons_served"].label = "Names address of persons served"
   taxlien_answer_attachment.overflow_fields.gathered = True
 
 
