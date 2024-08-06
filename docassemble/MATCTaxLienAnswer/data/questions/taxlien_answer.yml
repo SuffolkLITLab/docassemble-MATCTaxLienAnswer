@@ -66,7 +66,7 @@ code: |
   github_repo_name =  'docassemble-TaxlienAnswer'
 ---
 code: |
-  interview_short_title = "respond to a tax lien against them."
+  interview_short_title = "Tax Lien Answer and Certificate of Service Form"
 ---
 code: |
   al_form_type = "existing_case" 
@@ -95,6 +95,8 @@ code: |
   property_address.address
   #plaintiffs.gather()
   al_person_answering
+  attorneys.gather()
+  #attorneys[0].name.first
   #users_address.address
   #users[0].phone_number
   user_relationship_to_property
@@ -110,8 +112,10 @@ code: |
   trial_court.address.address
   set_progress(32)
   #docket_number
-  plaintiffs.gather()
-  plaintiff_address.address
+  #plaintiffs.gather()
+  plaintiffs[0].name.first
+  #plaintiff_address.address
+  #Plaintiff_service_address
   set_progress(48)
   #users[0].mobile_number
   #users[0].email
@@ -137,13 +141,16 @@ code: |
   #property_address.address_fields()
   #plaintiffs.gather()
   al_person_answering
+  #attorneys[0].name.first
   interview_order_taxlien_answer
   users_address.address
   users[0].phone_number
   #trial_court_county
   #property_address.address_fields()
-  plaintiffs.gather()
-  plaintiff_address.address
+  #plaintiffs.gather()
+  plaintiffs[0].name.first
+  #plaintiff_address.address
+  #Plaintiff_service_address
   names_address_persons_served.address
   signature_date
   basic_questions_signature_flow
@@ -160,13 +167,14 @@ code: |
 id: Taxlien_answer
 continue button field: taxlien_answer_intro
 question: |
-  Tax Lien Answer Form Introduction 
+  Tax Lien Answer and Certificate of Service Form Introduction 
 subquestion: |
-  This interview is provided to help you fill out the forms required to file and serve the Tax Lien Answer and Certificate of Service. The information you provide will be entered on the court form(s) in the correct places. There is no cost to file an answer with the court. For more information on tax lien forclosures and frequantly asked questions 
+  This interview will help you fill out the forms required to file and serve a tax lien answer and certificate of service. The information you provide will be entered on the court form(s) in the correct places. This interview is free to use. For more information on tax lien forclosures and frequently asked questions 
   [visit the following Land Court page](https://www.mass.gov/land-court-tax-lien-foreclosure-cases-resources).
   
   * Attorneys: In questions referring to "You," "You" is your client.
-  * Defendant: Refers to the person who has the Tax Lien placed upon them!
+  * Defendant refers to the person who has the tax lien against them.
+  * Plaintiff refers to who is suing. 
  
   Before you get started, please gather:
   
@@ -193,17 +201,17 @@ subquestion: |
 id: What_is_your_case_docket_number 
 question: |
   What is the Land Court docket number for your case?
-fields:
-  - Docket number: docket_number
-    required: False 
-under: |
-  Note: You can find your docket number in your Tax Lien Complaint or Citation. Also, the Court use the phrases "case number" and "docket number" interchangeably. 
+subquestion: |
+  You can find your docket number in your Tax Lien Complaint or Citation. Also, the court use the phrases "case number" and "docket number" interchangeably. 
   
   The following is an example of a docket number: XX TL XXXXXX
   
   Here is a 
   [link to a video on how to find your docket number through the court system](https://www.mass.gov/info-details/how-to-search-court-dockets#video-introduction:-how-to-search-court-dockets-).
 mandatory: true
+fields:
+  - Docket number: docket_number
+    required: True 
 ---
 id: Who_is_filling_out_this_form
 question: | 
@@ -212,7 +220,7 @@ fields:
   - I am: al_person_answering
     datatype: radio
     choices: 
-      - a self represented defendant: user 
+      - a self-represented defendant: user 
       - an attorney: attorney          
   - "BBO number": bbo_number
     datatype: text
@@ -226,7 +234,57 @@ fields:
       variable: al_person_answering
       is: attorney
 under: |
-  Note: Defendant refers to the person who has the Tax Lien placed upon them!
+ Defendant refers to the person who has the tax lien against them.
+---
+sets:
+  - attorneys[0].name.first
+  - attorneys[0].name.last
+  - attorneys[0].name.middle
+  - attorneys[0].name.suffix
+id: Defendant_attorney_name
+question: |
+  What is your name?
+fields:
+  - code: |
+      attorneys[0].name_fields()
+---
+sets:
+  - users[i].name.first
+  - users[i].name.last
+  - users[i].name.middle
+  - users[i].name.suffix    
+id: other users names
+question: |
+  % if i == 0 and al_person_answering == "user":
+  What is your name?
+  % else:
+  % if al_form_type in ['starts_case','existing_case','appeal']:
+  Who is the defendant you are representing?
+  % else:
+  What is the name of the ${ ordinal_number(i) } person who is adding their name to
+  this form with you?
+  % endif
+  % endif
+fields:
+  - code: |
+      users[i].name_fields()
+---
+id: any other users
+question: |
+  % if al_person_answering == "user": 
+  Are there any other defendants? 
+  % else:
+  % if al_person_answering == "attorney": 
+  Are there any other defendants named in the tax lien?
+  % endif 
+  % endif
+subquestion: |
+  % if len(users.elements) > 1:  
+  So far you have told us about ${comma_and_list(users.complete_elements())}.
+  % endif
+fields:
+  - no label: users.there_is_another
+    datatype: yesnoradio
 ---
 sets: 
   - users_address.address
@@ -234,6 +292,8 @@ sets:
 id: Users current address 
 question: | 
    What is your mailing address? 
+subquestion: |
+  All further notices will be sent to the address provided, unless you file a change of address with the Land Court and send a copy to the Plaintiff's service address.
 fields: 
   - code: users_address.address_fields()
 ---
@@ -242,23 +302,38 @@ objects:
 ---
 id: What_is_the_users_relation_to_the_property
 question: |
-  What is the defendant's relation to the property at issue?
+  % if al_person_answering == "user": 
+  What is your relationship to the property?
+  % else:
+  % if al_person_answering == "attorney": 
+  What is the defendant's relationship to the property?
+  % endif 
+  % endif
+subquestion: |
+  You may choose more than one option. 
 fields:
-  - Defendant is the : user_relationship_to_property
-    datatype: radio
+  - Defendant is : user_relationship_to_property
+    datatype: checkboxes 
     choices:
       - Owner: owner
       - Mortgagee: mortgagee
       - Other: other
+    none of the above: False 
   - "Other": if_user_is_other_specify
     input type: area
-    show if: 
-      variable: user_relationship_to_property
-      is: other  
+    show if: user_relationship_to_property["other"] 
 ---
 id: What_is_the_users_response_to_the_tax_lien
 question: |
-  What is the defendant's response to the tax lien?
+   % if al_person_answering == "user": 
+   What is your response to the tax lien?
+   % else:
+   % if al_person_answering == "attorney": 
+   What is the defendant's response to the tax lien?
+   % endif 
+   % endif
+subquestion: |
+  You may choose both options if necessary.
 fields:
   - Defendant: users_response_to_taxlien
     datatype: checkboxes  
@@ -269,34 +344,43 @@ fields:
   - "Reason(s) for questioning the validity of plaintiff's title": if_user_questions_validity_specify_reason
     input type: area 
     show if: users_response_to_taxlien["questions_the_validity"] 
-under: |
-  Note: You may choose both options if necessary.
 ---
 sets: 
   - property_address.address
   - property_address.city
 id: Property County
 question: |
-   What is the address of the property at issue?
+   What is the address of the property?
 fields: 
  - code: property_address.address_fields()
 --- 
 objects:
   - property_address: ALAddress
----
-sets: 
-  - plaintiff_address.address
-  - plaintiff_address.city
-id: Plaintiffs address 
-question: |
-  What is the plaintiff's service address?
-fields: 
-  - code: plaintiff_address.address_fields()
-under: |
-  The plaintiff's address can be found on the first page of your tax lien citation under the section labeled "Plaintiff's Service Address And Telephone Number."
----
-objects:
-  - plaintiff_address: ALAddress
+#---
+#sets: 
+#  - plaintiff_address.address
+#  - plaintiff_address.city
+#  - plaintiff_address.zip
+#id: Plaintiffs address 
+#question: |
+#  What is the plaintiff's service address?
+#subquestion: |
+#  The plaintiff's address can be found on the first page of your tax lien citation under the section labeled **Plaintiff's Service Address And Telephone Number.**
+#fields: 
+#  - code: plaintiff_address.address_fields()
+#under: |
+#  **The plaintiff is who is suing you.**
+#---
+#objects:
+#  - plaintiff_address: ALAddress
+#---
+#id: Plaintiff_service_address 
+#question: |
+  #Do you intend to serve the plaintiff at their service address?
+#field: Plaintiff_service_address
+#choices:
+#  - Yes
+#  - No 
 ---
 sets:
   - names_address_persons_served.address
@@ -304,18 +388,14 @@ sets:
 id: Certificate of Service
 question: |
    I will serve this Tax Lien Answer by delivering or mailing a copy of it by first class mail postage prepaid to the following:
-fields:
-  - Provide names and addresses of plaintiffs to be served: names_address_persons_served
-    datatype: object_radio
-    choices: 
-      - plaintiff_address
-    object labeler: |
-     lambda y: y.on_one_line()
-    none of the above: |
-       Somewhere else 
-    disable others: True
-  - code: |
-      names_address_persons_served.address_fields()    
+subquestion: |
+  Provide the address of where you intend to serve the plaintiff. The plaintiff's address can be found on the first page of your tax lien citation under the section labeled **Plaintiff's Service Address And Telephone Number.**
+fields: 
+  - Name: service_name
+  - Firm name: Firm_name 
+    required: false 
+  - code: names_address_persons_served.address_fields()  
+ 
 ---
 objects:
   - names_address_persons_served: ALAddress
@@ -328,8 +408,6 @@ subquestion: |
   
   Your signature also guarantees that you will serve this answer once completed, to the Plaintiff or their counsel. 
 signature: users[0].signature
-under: |
-  ${ users[0] }
 --- 
 id: your contact information
 question: |
@@ -347,6 +425,20 @@ fields:
 validation code: |
   if not (users[0].mobile_number or users[0].phone_number):
     validation_error("You need to give at least one phone number", field="users[0].phone_number")
+---
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+id: Tax Lien Plaintiff Name
+question: |
+  What is the name of the plaintiff?
+subquestion: |
+  The plaintiff's name can be found on your tax lien complaint and citation. **The plaintiff is who is suing you.**
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')
 ---
 id: preview taxlien_answer
 question: |
@@ -538,18 +630,23 @@ attachment:
       - "plaintiffs_name__1": ${ plaintiffs[0] }
       - "users_name": ${ users[0] }
       - "users1_name": ${ users[0] }
-      - "users1_name__1": ${ users[0] }
+      - "users1_name__1": |
+          % if al_person_answering == "attorney":
+          ${ attorneys[0] }
+          % else:
+          ${ users[0] }
+          % endif
       - "users_name__1": ${ users[0] }
       - "users2_name": ${ users[1] }
       - "users3_name": ${ users[2] }
       - "bbo_number": ${ bbo_number } 
       - "users1_firm": ${ users1_firm }
       - "users_is_defendant": ${ al_person_answering == "defendant" }
-      - "users_is_attorney": ${ al_person_answering == "attorney" }
+      - "users_is_attorney": ${al_person_answering == "attorney" }
       - "if_user_is_other_specify": ${ if_user_is_other_specify }
-      - "user_is_owner": ${ user_relationship_to_property == "owner" }
-      - "user_is_mortgagee": ${ user_relationship_to_property == "mortgagee" }
-      - "user_is_other": ${ user_relationship_to_property == "other" }
+      - "user_is_owner": ${ user_relationship_to_property["owner"] }
+      - "user_is_mortgagee": ${ user_relationship_to_property["mortgagee"] }
+      - "user_is_other": ${ user_relationship_to_property["other"] }
       - "users_claims_right_to_redeem": ${ users_response_to_taxlien["claims_right_to_redeem"] }
       - "users_question_plaintiff_validity": ${ users_response_to_taxlien["questions_the_validity"] }
       - "if_user_questions_validity_specify_reason": ${ taxlien_answer_attachment.safe_value("if_user_questions_validity_specify_reason") }
@@ -564,14 +661,22 @@ attachment:
       - "users1_address_state": ${users_address.normalized_address().state }
       - "users1_address_zip": ${ users_address.zip }
       - "users1_email": ${ users[0].email }
-      - "users1_signature": ${ users[0].signature }
-      - "users1_signature__1": ${ users[0].signature }
+      - "users1_signature": ${users[0].signature }
+      - "users1_signature__1": ${users[0].signature }
       - "signature_date": ${ signature_date }
       - "signature_date__1": ${ signature_date }
-      - "names_address_persons_served": ${ names_address_persons_served }
+      - "names_address_persons_served": |
+            ${ service_name }
+            ${ Firm_name }
+            ${ names_address_persons_served.address}
+            ${ names_address_persons_served.unit}
+            ${ names_address_persons_served.city}
+            ${ names_address_persons_served.state}
+            ${ names_address_persons_served.zip}
       - "plaintiff_address": ${ plaintiff_address.normalized_address().address }
       - "plaintiff_address.city": ${ plaintiff_address.normalized_address().city }
       - "plaintiff_address.state": ${ plaintiff_address.normalized_address().state }
+      - "Plaintiff_service_address": ${Plaintiff_service_address}
 ---
 code: |
   taxlien_answer_attachment.overflow_fields["if_user_questions_validity_specify_reason"].overflow_trigger = 1068
