@@ -6,52 +6,44 @@ features:
   css: form-styles.css
 ---
 metadata:
-  title: >-
+  title: |
     Tax-lien answer
-  short title: >-
+  short title: |
     Tax-lien answer
-  description: |-
-    This interview helps someone in Massachusetts respond to a tax lien against them.
+  description: |
+    This interview helps someone in Massachusetts respond to a tax lien filed against them and complete their certificate of service.
   can_I_use_this_form: |
-    If you are someone who has a tax lien against them, you can use this interview to respond to the lien by challenging the validity of the other party's title or accepting to pay what the court determines you owe.
+    You can use this interview if you have a tax lien filed against you and the answer by date on your Tax Lien Complaint and Citation has not passed. You may also use this interview if you are an attorney representing someone who meets the aforementioned criteria. 
   before_you_start: |
-    This interview will help you respond to a tax lien.
-    
-    Before you get started, please gather:
-    
-    *The contact information for both parties and or their counsel.
-    
-    
-    When you are finished, you will need to:
-    
-    * Make sure that your answer is served to the other party or their counsel.
+    please gather your Tax Lien Complaint and Citation. 
   maturity: production
-  estimated_completion_minutes: 60
+  estimated_completion_minutes: 25
   estimated_completion_delta: 30
-  LIST_topics: 
-    - "MO-00-00-00-00"
-    - "MO-09-00-00-00"
-    - "MO-12-00-00-00"
-  tags:
-    - "MO-00-00-00-00"
-    - "MO-09-00-00-00"
-    - "MO-12-00-00-00"
-  authors:
-    - Benjamin Eilert and Karla Fuentes
-  original_form: []
-  original_form_published_on: ""
-  allowed_courts: 
-    - "Land Court"
-  typical_role: "defendant"
-  al_weaver_version: "1.10.3"
-  generated_on: "2024-06-05"
   languages:
     - en
+  help_page_url: https://www.mass.gov/land-court-tax-lien-foreclosure-cases-resources
+  help_page_title: Land Court Tax Lien Foreclosure Cases Resources
+  LIST_topics: 
+    - MO-00-00-00-00
+    - MO-09-00-00-00
+    - MO-12-00-00-00
+  tags: 
+    - MO-00-00-00-00
+    - MO-09-00-00-00
+    - MO-12-00-00-00
   jurisdiction: NAM-US-US+MA
-  review_date: 2024-06-05
+  original_form: https://www.mass.gov/doc/tax-lien-answer-and-certificate-of-service/download
+  original_form_published_on: 
+  review_date: August 2024
   form_titles:
-    - Tax-lien answer
-  form_numbers: []
+    - Land Court Tax Lien Answer and Certificate of Service
+  form_numbers:
+    - 
+  fees:
+    - Filing fee: 0.00
+  authors: 
+    - Karla R. Fuentes 
+    - Benjamin Joseph Eilert 
   update_notes: |
 ---
 code: |
