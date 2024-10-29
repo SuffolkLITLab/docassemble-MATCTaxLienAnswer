@@ -1,6 +1,7 @@
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.MassAccess:massaccess.yml
 ---
 features: 
   css: form-styles.css
@@ -100,7 +101,7 @@ code: |
   set_progress(16)
   #bbo_number_if_attorney
   #trial_court.address.address
-  names_address_of_persons_served
+  #names_address_of_persons_served
   trial_court.address.address
   set_progress(32)
   #docket_number
@@ -240,6 +241,17 @@ fields:
   - code: |
       attorneys[0].name_fields()
 ---
+sets: 
+  - users_address.address
+  - users_address.city
+id: Users current address 
+question: | 
+   What is your mailing address? 
+subquestion: |
+  All further notices will be sent to the address provided, unless you file a change of address with the Land Court and send a copy to the Plaintiff's service address.
+fields: 
+  - code: users_address.address_fields()
+---
 sets:
   - users[i].name.first
   - users[i].name.last
@@ -247,6 +259,41 @@ sets:
   - users[i].name.suffix    
 id: other users names
 question: |
+ 
+  % if al_person_answering == "user":
+    % if i == 1:
+    What is the other defendant's name?
+    % elif i == 0:
+    What is your name?
+    % endif
+  % else:
+  What is your client's name?
+  % endif
+
+  % if al_person_answering == "user":
+    % if i == 2:
+    What is the other defendant's name?
+    % elif i == 0:
+    What is your name?
+    % endif
+
+  % else:
+  % endif
+
+comment: |
+  i 1
+  al_person_answering "user"
+  if i 1 and al_person_answering "user":
+  What is the other defendant's name?
+
+  working code below
+  % if i == 1 and al_person_answering == "user":
+  What is the other defendant's name?
+  % elif al_person_answering == "user":
+  What is your name?
+
+
+  
   % if i == 0 and al_person_answering == "user":
   What is your name?
   % else:
@@ -276,18 +323,10 @@ subquestion: |
   % endif
 fields:
   - no label: users.there_is_another
+
     datatype: yesnoradio
 ---
-sets: 
-  - users_address.address
-  - users_address.city
-id: Users current address 
-question: | 
-   What is your mailing address? 
-subquestion: |
-  All further notices will be sent to the address provided, unless you file a change of address with the Land Court and send a copy to the Plaintiff's service address.
-fields: 
-  - code: users_address.address_fields()
+
 ---
 objects: 
   - users_address: ALAddress
@@ -304,7 +343,7 @@ question: |
 subquestion: |
   You may choose more than one option. 
 fields:
-  - Defendant is : user_relationship_to_property
+  - The : user_relationship_to_property
     datatype: checkboxes 
     choices:
       - Owner: owner

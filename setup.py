@@ -54,7 +54,7 @@ setup(name='docassemble.MATCTaxLienAnswer',
       url='https://courtformsonline.org',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['docassemble.AssemblyLine>=3.0.1'],
+      install_requires=['docassemble.AssemblyLine>=3.1.0'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MATCTaxLienAnswer/', package='docassemble.MATCTaxLienAnswer'),
      )
