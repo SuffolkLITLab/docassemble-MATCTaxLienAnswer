@@ -652,6 +652,7 @@ attachment:
   variable name: taxlien_answer_attachment[i]
   skip undefined: True
   pdf template file: Tax-Lien-_Form.pdf
+  editable: False
   fields:
       - "trial_court_county": ${ property_address.normalized_address().county  }
       - "trial_court_county__1": ${property_address.normalized_address().county }
