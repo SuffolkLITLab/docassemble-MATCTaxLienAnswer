@@ -43,6 +43,7 @@ metadata:
   fees:
     - Filing fee: 0.00
   authors: 
+    - Taylor Koch
     - Karla R. Fuentes 
     - Benjamin Joseph Eilert 
   update_notes: |
@@ -71,6 +72,9 @@ objects:
 sections:
   - review_taxlien_answer: Review your answers
 ---
+features:
+  navigation: True
+  progress bar: True
 #################### Interview order #####################
 comment: |
   Controls order and branching logic for questions specific to this form
@@ -88,13 +92,13 @@ code: |
   property_address.address
   #plaintiffs.gather()
   al_person_answering
-  attorneys.gather()
+  #attorneys.gather()
   #attorneys[0].name.first
   #users_address.address
   #users[0].phone_number
   user_relationship_to_property
   users_response_to_taxlien
-  users_address.address
+  users[0].address.address
   users[0].phone_number
   users[0].mobile_number
   users[0].email
@@ -136,7 +140,7 @@ code: |
   al_person_answering
   #attorneys[0].name.first
   interview_order_taxlien_answer
-  users_address.address
+  #users_address.address
   users[0].phone_number
   #trial_court_county
   #property_address.address_fields()
@@ -179,6 +183,10 @@ subquestion: |
   
   * Serve this Tax Lien Answer by delivering or mailing a copy to the Plaintiff or their counsel.
 
+
+
+  If you are filling out this form after the answer by date listed on the Tax Lien Complaint, you must file your answer in addition to a Motion for Leave to File Answer Late to request an extension.
+
   Most people take about 10 minutes to complete this interview.
 ---
 id: Preview_of_taxlien_answer
@@ -186,6 +194,7 @@ continue button field: Preview_of_taxlien_answer
 question: |
   The following is a preview of the Tax Lien Answer Form and Certificate of Service. 
 subquestion: |
+  [Click here to preview a larger version of an empty answer form](https://www.mass.gov/doc/tax-lien-answer-and-certificate-of-service/download).
   <div class="image-row">
     <div class="image">[FILE Tax_Lien_Answer_Preview.jpg, 100%]</div>
     <div class="image">[FILE Tax_Lien_Answer_Preview_Page_2.jpg, 100%]</div>
@@ -242,15 +251,15 @@ fields:
       attorneys[0].name_fields()
 ---
 sets: 
-  - users_address.address
-  - users_address.city
+  - users[0].address.address
+  - users[0].address.city
 id: Users current address 
 question: | 
    What is your mailing address? 
 subquestion: |
   All further notices will be sent to the address provided, unless you file a change of address with the Land Court and send a copy to the Plaintiff's service address.
 fields: 
-  - code: users_address.address_fields()
+  - code: users[0].address.address_fields()
 ---
 sets:
   - users[i].name.first
@@ -265,20 +274,11 @@ question: |
     What is the other defendant's name?
     % elif i == 0:
     What is your name?
-    % endif
-  % else:
-  What is your client's name?
-  % endif
-
-  % if al_person_answering == "user":
-    % if i == 2:
+    % else:
     What is the other defendant's name?
-    % elif i == 0:
-    What is your name?
     % endif
-
-  % else:
   % endif
+
 
 comment: |
   i 1
@@ -328,8 +328,7 @@ fields:
 ---
 
 ---
-objects: 
-  - users_address: ALAddress
+
 ---
 id: What_is_the_users_relation_to_the_property
 question: |
@@ -365,6 +364,8 @@ question: |
    % endif
 subquestion: |
   You may choose both options if necessary.
+  [Click here for more information about these responses](https://www.mass.gov/info-details/frequently-asked-questions-about-tax-lien-foreclosure-cases-in-the-land-court).
+  
 fields:
   - Defendant: users_response_to_taxlien
     datatype: checkboxes  
@@ -426,7 +427,6 @@ fields:
   - Firm name: Firm_name 
     required: false 
   - code: names_address_persons_served.address_fields()  
- 
 ---
 objects:
   - names_address_persons_served: ALAddress
@@ -471,6 +471,21 @@ fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')
 ---
+generic object: ALIndividual
+template: x.business_name_label
+content: |
+  Name of business or city/town
+---
+generic object: ALIndividual
+template: x.business_choice_label
+content: |
+  Business or city/town
+---
+generic object: ALIndividual
+template: x.person_type_label
+content: |
+  Is this a person or a business, city, or town?
+---
 id: preview taxlien_answer
 question: |
   Preview your form before you sign it
@@ -496,6 +511,9 @@ code: |
   # a different address than the user's
   [user.address.address for user in users.complete_elements()]
   addresses_to_search = [user.address for user in users.complete_elements()]
+---
+code: |
+  trial_court = all_courts.matching_land_court(users[0].address)
 ---
 id: taxlien answer review screen
 event: review_taxlien_answer
@@ -648,14 +666,14 @@ attachment:
 ---
 attachment:
   name: taxlien answer
-  filename: Tax_Lien_Form
+  filename: tax_lien_answer
   variable name: taxlien_answer_attachment[i]
   skip undefined: True
-  pdf template file: Tax-Lien-_Form.pdf
+  pdf template file: tax_lien_answer.pdf
   editable: False
   fields:
       - "trial_court_county": ${ property_address.normalized_address().county  }
-      - "trial_court_county__1": ${property_address.normalized_address().county }
+      - "trial_court_county__1": ${ property_address.normalized_address().county }
       - "docket_number": ${ docket_number }
       - "docket_number__1": ${ docket_number }
       - "plaintiffs_name": ${ plaintiffs[0] }
@@ -674,7 +692,7 @@ attachment:
       - "bbo_number": ${ bbo_number } 
       - "users1_firm": ${ users1_firm }
       - "users_is_defendant": ${ al_person_answering == "defendant" }
-      - "users_is_attorney": ${al_person_answering == "attorney" }
+      - "users_is_attorney": ${ al_person_answering == "attorney" }
       - "if_user_is_other_specify": ${ if_user_is_other_specify }
       - "user_is_owner": ${ user_relationship_to_property["owner"] }
       - "user_is_mortgagee": ${ user_relationship_to_property["mortgagee"] }
@@ -687,14 +705,14 @@ attachment:
       - "users1_firm": ${ users1_firm }
       - "users1_mobile_number": ${ users[0].mobile_number }
       - "users1_fax": ${ users[0].fax_number }
-      - "users1_address_unit": ${ users_address.unit }
-      - "users1_address_address": ${ users_address.normalized_address().address }
-      - "users1_address_city": ${users_address.normalized_address().city }
-      - "users1_address_state": ${users_address.normalized_address().state }
-      - "users1_address_zip": ${ users_address.zip }
+      - "users1_address_unit": ${ users[0].address.unit }
+      - "users1_address_address": ${ users[0].normalized_address().address }
+      - "users1_address_city": ${ users[0].normalized_address().city }
+      - "users1_address_state": ${ users[0].normalized_address().state }
+      - "users1_address_zip": ${ users[0].zip }
       - "users1_email": ${ users[0].email }
       - "users1_signature": ${users[0].signature }
-      - "users1_signature__1": ${users[0].signature }
+      - "users1_signature__1": ${ users[0].signature }
       - "signature_date": ${ signature_date }
       - "signature_date__1": ${ signature_date }
       - "names_address_persons_served": |
