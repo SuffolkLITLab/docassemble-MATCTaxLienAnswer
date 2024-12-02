@@ -235,6 +235,7 @@ question: |
 fields:
   - code: |
       attorneys[0].name_fields()
+
 ---
 sets: 
   - users[0].address.address
@@ -585,7 +586,7 @@ attachment:
 ---
 attachment:
   name: taxlien answer
-  filename: taxlien_answer 
+  filename: taxlien_answer
   variable name: taxlien_answer_attachment[i]
   skip undefined: True
   pdf template file: taxlien_answer.pdf
@@ -601,7 +602,7 @@ attachment:
       - "users1_name": ${ users[0] }
       - "users1_name__1": |
           % if al_person_answering == "attorney":
-          ${ attorneys[0] }
+          ${ defendant_attorney_name }
           % else:
           ${ users[0] }
           % endif
