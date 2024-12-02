@@ -67,6 +67,7 @@ code: |
   al_form_type = "existing_case" 
 ---
 objects:
+  - al_logo: DAStaticFile.using(filename="docassemble.MATCTheme:Mass-Trial-Court-Seal-final-color.png")
   - users: ALPeopleList.using(there_are_any=True)
   - other_parties: ALPeopleList.using(ask_number=True, target_number=1) 
 ---
@@ -80,8 +81,9 @@ sections:
 ---
 #################### Interview order #####################
 comment: |
-  Controls order and branching logic for questions specific to this form
-id: interview_order_taxlien_answer
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
 code: |
   nav.set_section("section_case_information")
   docket_number
@@ -92,7 +94,6 @@ code: |
   if al_person_answering == "attorney":
     attorneys[0].name.first
 
-  # Set the allowed courts for this interview
   user_role = "defendant"
   user_ask_role = "defendant"
   users.gather()
@@ -109,6 +110,7 @@ code: |
   nav.set_section("section_answer")
   user_relationship_to_property
   users_response_to_taxlien
+  
   set_progress(16)
   trial_court.address.address
   set_progress(32)
