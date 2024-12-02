@@ -237,10 +237,16 @@ fields:
     show if: 
       variable: al_person_answering
       is: attorney
-  - "Attorney's Firm or Agency Name": users1_firm 
+  - "Attorney's firm or agency name": users1_firm 
     required: False
     input type: area 
     show if: 
+      variable: al_person_answering
+      is: attorney
+  - "Attorney's name": defendant_attorney_name
+    required: True
+    datatype: text
+    show if:
       variable: al_person_answering
       is: attorney
 under: |
@@ -257,6 +263,7 @@ question: |
 fields:
   - code: |
       attorneys[0].name_fields()
+
 ---
 sets: 
   - users[0].address.address
@@ -282,6 +289,16 @@ question: |
     What is the other defendant's name?
     % elif i == 0:
     What is your name?
+    % else:
+    What is the other defendant's name?
+    % endif
+  % endif
+
+  % if al_person_answering == "attorney":
+    % if i == 1:
+    What is the name of the other defendant?
+    % elif i == 0:
+    What is the name of the defendant you are representing?
     % else:
     What is the other defendant's name?
     % endif
@@ -674,10 +691,10 @@ attachment:
 ---
 attachment:
   name: taxlien answer
-  filename: tax_lien_answer
+  filename: taxlien_answer
   variable name: taxlien_answer_attachment[i]
   skip undefined: True
-  pdf template file: tax_lien_answer.pdf
+  pdf template file: taxlien_answer.pdf
   editable: False
   fields:
       - "trial_court_county": ${ property_address.normalized_address().county  }
@@ -690,7 +707,7 @@ attachment:
       - "users1_name": ${ users[0] }
       - "users1_name__1": |
           % if al_person_answering == "attorney":
-          ${ attorneys[0] }
+          ${ defendant_attorney_name }
           % else:
           ${ users[0] }
           % endif
