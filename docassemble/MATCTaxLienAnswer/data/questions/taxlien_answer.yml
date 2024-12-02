@@ -70,38 +70,62 @@ objects:
   - other_parties: ALPeopleList.using(ask_number=True, target_number=1) 
 ---
 sections:
+  - section_intro: Introduction
+  - section_case_information: Case Information
+  - section_defendant_information: Defendant Information  
+  - section_answer: Answer to Tax Lien
+  - section_service_information: Service of Process Information 
   - review_taxlien_answer: Review your answers
 ---
 features:
   navigation: True
   progress bar: True
-#################### Interview order #####################
+---
+###################### Main order ######################
+#################### Interview order ##################### (combined with main order)
+# interview_order_taxlien_answer
 comment: |
-  Controls order and branching logic for questions specific to this form
-id: interview_order_taxlien_answer
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
 code: |
-  # Set the allowed courts for this interview
+  nav.set_section("section_intro")
+  al_intro_screen
+  taxlien_answer_intro
+  Preview_of_taxlien_answer
+  nav.set_section("section_case_information")
+  docket_number
+  property_address.address
+  #property_address.address_fields()
+  #plaintiffs.gather()
+  nav.set_section("section_defendant_information")
+  al_person_answering
+  #attorneys[0].name.first
+
+  # Start original interview order block
   allowed_courts = ['Land Court']
-  nav.set_section("review_taxlien_answer")
   user_role = "defendant"
   user_ask_role = "defendant"
   users.gather()
   set_parts(subtitle=str(users))
   Preview_of_taxlien_answer
   docket_number
-  property_address.address
+  property_address
   #plaintiffs.gather()
   al_person_answering
   #attorneys.gather()
   #attorneys[0].name.first
   #users_address.address
   #users[0].phone_number
-  user_relationship_to_property
-  users_response_to_taxlien
   users[0].address.address
   users[0].phone_number
   users[0].mobile_number
   users[0].email
+  nav.set_section("section_answer")
+  user_relationship_to_property
+  users_response_to_taxlien
+  
+
   set_progress(16)
   #bbo_number_if_attorney
   #trial_court.address.address
@@ -109,6 +133,7 @@ code: |
   trial_court.address.address
   set_progress(32)
   #docket_number
+  nav.set_section("section_service_information")
   #plaintiffs.gather()
   plaintiffs[0].name.first
   #plaintiff_address.address
@@ -122,24 +147,8 @@ code: |
   #property_address.address
   names_address_persons_served.address
   signature_date
-  interview_order_taxlien_answer = True
----
-###################### Main order ######################
-comment: |
-  This block includes the logic for standalone interviews.
-  Delete mandatory: True to include in another interview
-mandatory: True
-code: |
-  al_intro_screen
-  taxlien_answer_intro
-  Preview_of_taxlien_answer
-  docket_number
-  property_address.address
-  #property_address.address_fields()
-  #plaintiffs.gather()
-  al_person_answering
-  #attorneys[0].name.first
-  interview_order_taxlien_answer
+  ## End original interview order code
+  
   #users_address.address
   users[0].phone_number
   #trial_court_county
@@ -183,9 +192,6 @@ subquestion: |
   
   * Serve this Tax Lien Answer by delivering or mailing a copy to the Plaintiff or their counsel.
 
-
-
-  If you are filling out this form after the answer by date listed on the Tax Lien Complaint, you must file your answer in addition to a Motion for Leave to File Answer Late to request an extension.
 
   Most people take about 10 minutes to complete this interview.
 ---
@@ -708,7 +714,7 @@ attachment:
       - "users1_address_unit": ${ users[0].address.unit }
       - "users1_address_address": ${ users[0].normalized_address().address }
       - "users1_address_city": ${ users[0].normalized_address().city }
-      - "users1_address_state": ${ users[0].normalized_address().state }
+      - "users1_address_state": ${ users[0].address.state }
       - "users1_address_zip": ${ users[0].zip }
       - "users1_email": ${ users[0].email }
       - "users1_signature": ${users[0].signature }
