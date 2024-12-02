@@ -66,6 +66,7 @@ code: |
   al_form_type = "existing_case" 
 ---
 objects:
+  - al_logo: DAStaticFile.using(filename="docassemble.MATCTheme:Mass-Trial-Court-Seal-final-color.png")
   - users: ALPeopleList.using(there_are_any=True)
   - other_parties: ALPeopleList.using(ask_number=True, target_number=1) 
 ---
@@ -78,6 +79,7 @@ sections:
   - review_taxlien_answer: Review your answers
 ---
 features:
+  bootstrap theme: docassemble.MATCTheme:bootstrap.css
   navigation: True
   progress bar: True
 ---
