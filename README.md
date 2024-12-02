@@ -4,5 +4,5 @@ Tax-lien answer
 
 ## Author
 
-Benjamin Joseph Eilert and Karla R. Fuentes
+Taylor Koch and Benjamin Joseph Eilert and Karla R. Fuentes
 
