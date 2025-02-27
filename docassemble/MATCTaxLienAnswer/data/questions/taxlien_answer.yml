@@ -136,6 +136,7 @@ code: |
   interview_order_taxlien_answer
   signature_date
   basic_questions_signature_flow
+
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
       persistent=True,
@@ -163,12 +164,12 @@ subquestion: |
   * Your Tax Lien Complaint and Citation. 
  
   
-  
   When you are finished, you will need to:
   
-  * Serve this Tax Lien Answer by delivering or mailing a copy to the Plaintiff or their counsel.
+  * Serve this Tax Lien Answer by delivering or mailing a copy to the Plaintiff or their attorney.
 
   Most people take about 20 minutes to complete this interview.
+ 
 ---
 id: Preview_of_taxlien_answer
 continue button field: Preview_of_taxlien_answer
@@ -376,23 +377,6 @@ subquestion: |
   
   Your signature also guarantees that you will serve this Answer form once completed to the plaintiff or their attorney. 
 signature: users[0].signature
---- 
-id: your contact information
-question: |
-  What is your contact information?
-fields:  
-  - Mobile number: users[0].mobile_number
-    required: False   
-  - Office or Home phone number: users[0].phone_number
-    required: False
-  - Email address: users[0].email    
-    datatype: email
-    required: False
-  - Fax number: users[0].fax_number
-    required: False
-validation code: |
-  if not (users[0].mobile_number or users[0].phone_number):
-    validation_error("You need to give at least one phone number", field="users[0].phone_number")
 ---
 sets:
   - other_parties[i].name.first
@@ -602,7 +586,7 @@ attachment:
       - "users1_name": ${ users[0] }
       - "users1_name__1": |
           % if al_person_answering == "attorney":
-          ${ defendant_attorney_name }
+          ${ attorneys[0] }
           % else:
           ${ users[0] }
           % endif
@@ -624,7 +608,7 @@ attachment:
       - "users1_phone_number": ${ users[0].phone_number }
       - "users1_firm": ${ users1_firm }
       - "users1_mobile_number": ${ users[0].mobile_number }
-      - "users1_fax": ${ users[0].fax_number }
+      - "users1_fax": ""
       - "users1_address_unit": ${ users[0].address.unit }
       - "users1_address_address": ${ users[0].address.normalized_address().address }
       - "users1_address_city": ${ users[0].address.normalized_address().city }
