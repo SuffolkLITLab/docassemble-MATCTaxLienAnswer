@@ -71,12 +71,12 @@ objects:
   - other_parties: ALPeopleList.using(ask_number=True, target_number=1) 
 ---
 sections:
+  - review_taxlien_answer: Review your answers
   - section_intro: Introduction
   - section_case_information: Case Information
   - section_defendant_information: Defendant Information  
   - section_answer: Answer to Tax Lien
   - section_service_information: Service of Process Information 
-  - review_taxlien_answer: Review your answers
 ---
 features:
   bootstrap theme: docassemble.MATCTheme:bootstrap.css
@@ -98,8 +98,7 @@ code: |
   nav.set_section("section_case_information")
   docket_number
   property_address.address
-  #property_address.address_fields()
-  #plaintiffs.gather()
+
   nav.set_section("section_defendant_information")
   al_person_answering
   if al_person_answering == "attorney":
@@ -114,11 +113,7 @@ code: |
   Preview_of_taxlien_answer
   docket_number
   property_address
-  #plaintiffs.gather()
   al_person_answering
-  #attorneys.gather()
-  #users_address.address
-  #users[0].phone_number
   users[0].address.address
   users[0].phone_number
   users[0].mobile_number
@@ -129,39 +124,23 @@ code: |
   
 
   set_progress(16)
-  #bbo_number_if_attorney
-  #trial_court.address.address
-  #names_address_of_persons_served
   trial_court.address.address
   set_progress(32)
-  #docket_number
   nav.set_section("section_service_information")
-  #plaintiffs.gather()
   plaintiffs[0].name.first
-  #plaintiff_address.address
-  #Plaintiff_service_address
   set_progress(48)
-  #users[0].mobile_number
-  #users[0].email
-  #trial_court.address.address
   set_progress(64)
-  #trial_court_county
-  #property_address.address
   names_address_persons_served.address
   signature_date
+  
   ## End original interview order code
   
-  #users_address.address
   users[0].phone_number
-  #trial_court_county
-  #property_address.address_fields()
-  #plaintiffs.gather()
   plaintiffs[0].name.first
-  #plaintiff_address.address
-  #Plaintiff_service_address
   names_address_persons_served.address
   signature_date
   basic_questions_signature_flow
+
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
       persistent=True,
@@ -189,18 +168,17 @@ subquestion: |
   * Your Tax Lien Complaint and Citation. 
  
   
-  
   When you are finished, you will need to:
   
   * Serve this Tax Lien Answer by delivering or mailing a copy to the Plaintiff or their attorney.
 
 
-  Most people take about 10 minutes to complete this interview.
+  Most people take about 20 minutes to complete this interview.
 ---
 id: Preview_of_taxlien_answer
 continue button field: Preview_of_taxlien_answer
 question: |
-  The following is a preview of the Tax Lien Answer Form and Certificate of Service. 
+  The below is a preview of the Tax Lien Answer Form and Certificate of Service. 
 subquestion: |
   [Click here to preview a larger version of an empty answer form](https://www.mass.gov/doc/tax-lien-answer-and-certificate-of-service/download).
   <div class="image-row">
@@ -277,50 +255,23 @@ sets:
   - users[i].name.suffix    
 id: other users names
 question: |
- 
   % if al_person_answering == "user":
-    % if i == 1:
-    What is the other defendant's name?
-    % elif i == 0:
-    What is your name?
-    % else:
-    What is the other defendant's name?
-    % endif
+  % if i == 1:
+  What is the other defendant's name?
+  % elif i == 0:
+  What is your name?
+  % else:
+  What is the other defendant's name?
+  % endif
   % endif
 
   % if al_person_answering == "attorney":
-    % if i == 1:
-    What is the name of the other defendant?
-    % elif i == 0:
-    What is the name of the defendant you are representing?
-    % else:
-    What is the other defendant's name?
-    % endif
-  % endif
-
-
-comment: |
-  i 1
-  al_person_answering "user"
-  if i 1 and al_person_answering "user":
-  What is the other defendant's name?
-
-  working code below
-  % if i == 1 and al_person_answering == "user":
-  What is the other defendant's name?
-  % elif al_person_answering == "user":
-  What is your name?
-
-
-  
-  % if i == 0 and al_person_answering == "user":
-  What is your name?
+  % if i == 1:
+  What is the name of the other defendant?
+  % elif i == 0:
+  What is the name of the defendant you are representing?
   % else:
-  % if al_form_type in ['starts_case','existing_case','appeal']:
-  Who is the defendant you are representing?
-  % else:
-  What is the name of the ${ ordinal_number(i) } person who is adding their name to
-  this form with you?
+  What is the other defendant's name?
   % endif
   % endif
 fields:
@@ -386,7 +337,7 @@ subquestion: |
   [Click here for more information about these responses](https://www.mass.gov/info-details/frequently-asked-questions-about-tax-lien-foreclosure-cases-in-the-land-court).
   
 fields:
-  - Defendant: users_response_to_taxlien
+  - no label: users_response_to_taxlien
     datatype: checkboxes  
     choices: 
       - I claim the right to take back full ownership of the property by paying the amount the Court decides I owe: claims_right_to_redeem
@@ -412,31 +363,6 @@ fields:
 --- 
 objects:
   - property_address: ALAddress
-#---
-#sets: 
-#  - plaintiff_address.address
-#  - plaintiff_address.city
-#  - plaintiff_address.zip
-#id: Plaintiffs address 
-#question: |
-#  What is the plaintiff's service address?
-#subquestion: |
-#  The plaintiff's address can be found on the first page of your tax lien citation under the section labeled **Plaintiff's Service Address And Telephone Number.**
-#fields: 
-#  - code: plaintiff_address.address_fields()
-#under: |
-#  **The plaintiff is who is suing you.**
-#---
-#objects:
-#  - plaintiff_address: ALAddress
-#---
-#id: Plaintiff_service_address 
-#question: |
-  #Do you intend to serve the plaintiff at their service address?
-#field: Plaintiff_service_address
-#choices:
-#  - Yes
-#  - No 
 ---
 sets:
   - names_address_persons_served.address
@@ -463,23 +389,6 @@ subquestion: |
   
   Your signature also guarantees that you will serve this Answer form once completed to the plaintiff or their attorney. 
 signature: users[0].signature
---- 
-id: your contact information
-question: |
-  What is your contact information?
-fields:  
-  - Mobile number: users[0].mobile_number
-    required: False   
-  - Office or Home phone number: users[0].phone_number
-    required: False
-  - Email address: users[0].email    
-    datatype: email
-    required: False
-  - Fax number: users[0].fax_number
-    required: False
-validation code: |
-  if not (users[0].mobile_number or users[0].phone_number):
-    validation_error("You need to give at least one phone number", field="users[0].phone_number")
 ---
 sets:
   - other_parties[i].name.first
@@ -525,9 +434,6 @@ subquestion: |
   
   Remember to come back to this window to continue and sign your form.
 continue button field: taxlien_answer_preview_question    
----
-#code: |
-#  signature_fields = ['users[0].signature']
 ---
 code: |
   # This is a placeholder for the addresses that will be searched
@@ -585,10 +491,6 @@ review:
     button: |
       **Users1 firm**:
       > ${ single_paragraph(users1_firm) }
-  - Edit: users1_fax
-    button: |
-      **Users1 fax**:
-      ${ users1_fax }
   - Edit: signature_date
     button: |
       **Date of signature**:
@@ -728,7 +630,7 @@ attachment:
       - "users1_phone_number": ${ users[0].phone_number }
       - "users1_firm": ${ users1_firm }
       - "users1_mobile_number": ${ users[0].mobile_number }
-      - "users1_fax": ${ users[0].fax_number }
+      - "users1_fax": ""
       - "users1_address_unit": ${ users[0].address.unit }
       - "users1_address_address": ${ users[0].normalized_address().address }
       - "users1_address_city": ${ users[0].normalized_address().city }
@@ -747,10 +649,6 @@ attachment:
             ${ names_address_persons_served.city}
             ${ names_address_persons_served.state}
             ${ names_address_persons_served.zip}
-      - "plaintiff_address": ${ plaintiff_address.normalized_address().address }
-      - "plaintiff_address.city": ${ plaintiff_address.normalized_address().city }
-      - "plaintiff_address.state": ${ plaintiff_address.normalized_address().state }
-      - "Plaintiff_service_address": ${Plaintiff_service_address}
 ---
 code: |
   taxlien_answer_attachment.overflow_fields["if_user_questions_validity_specify_reason"].overflow_trigger = 1068
@@ -758,6 +656,3 @@ code: |
   #taxlien_answer_attachment.overflow_fields["names_address_persons_served"].overflow_trigger = 2116
   #taxlien_answer_attachment.overflow_fields["names_address_persons_served"].label = "Names address of persons served"
   taxlien_answer_attachment.overflow_fields.gathered = True
-
-
-
