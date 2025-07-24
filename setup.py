@@ -1,6 +1,6 @@
 import os
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from fnmatch import fnmatchcase
 from distutils.util import convert_path
 
@@ -46,15 +46,14 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
 setup(name='docassemble.MATCTaxLienAnswer',
       version='1.0',
       description=('Tax-lien answer'),
-      long_description='# docassemble.TaxlienAnswer\r\n\r\nTax-lien answer\r\n\r\n## Author\r\n\r\nBenjamin Joseph Eilert and Karla R. Fuentes\r\n\r\n',
+      long_description='# docassemble.TaxlienAnswer\r\n\r\nTax-lien answer\r\n\r\n## Author\r\n\r\nTaylor Koch and Benjamin Joseph Eilert and Karla R. Fuentes\r\n\r\n',
       long_description_content_type='text/markdown',
-      author='Benjamin Eilert and Karla Fuentes',
-      author_email='karla.fuentes@su.suffolk.edu',
+      author='Taylor Koch, Benjamin Eilert, and Karla Fuentes',
+      author_email='taylor.koch@su.suffolk.edu; karla.fuentes@su.suffolk.edu',
       license='The MIT License',
       url='https://courtformsonline.org',
-      packages=find_packages(),
-      namespace_packages=['docassemble'],
-      install_requires=['docassemble.AssemblyLine>=3.1.0'],
+      packages=find_namespace_packages(),
+      install_requires=['docassemble.AssemblyLine>=3.2.0'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MATCTaxLienAnswer/', package='docassemble.MATCTaxLienAnswer'),
      )
