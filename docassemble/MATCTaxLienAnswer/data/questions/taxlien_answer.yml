@@ -259,50 +259,18 @@ sets:
   - users[i].name.suffix    
 id: other users names
 question: |
- 
   % if al_person_answering == "user":
-    % if i == 1:
-    What is the other defendant's name?
-    % elif i == 0:
-    What is your name?
-    % endif
-  % else:
-  What is your client's name?
-  % endif
-
-  % if al_person_answering == "user":
-    % if i == 2:
-    What is the other defendant's name?
-    % elif i == 0:
-    What is your name?
-    % endif
-
-  % else:
-  % endif
-
-comment: |
-  i 1
-  al_person_answering "user"
-  if i 1 and al_person_answering "user":
-  What is the other defendant's name?
-
-  working code below
-  % if i == 1 and al_person_answering == "user":
-  What is the other defendant's name?
-  % elif al_person_answering == "user":
-  What is your name?
-
-
-  
-  % if i == 0 and al_person_answering == "user":
+  % if i == 0:
   What is your name?
   % else:
-  % if al_form_type in ['starts_case','existing_case','appeal']:
-  Who is the defendant you are representing?
-  % else:
-  What is the name of the ${ ordinal_number(i) } person who is adding their name to
-  this form with you?
+  What is the ${ ordinal_number(i + 1) } defendant's name?
   % endif
+  % else:
+  What is your ${ ordinal_number(i + 1) } client's name?
+  % endif
+subquestion: | 
+  % if len(users.elements) > 1:  
+  So far you have told us about ${comma_and_list(users.complete_elements())}.
   % endif
 fields:
   - code: |
@@ -312,18 +280,15 @@ id: any other users
 question: |
   % if al_person_answering == "user": 
   Are there any other defendants? 
-  % else:
-  % if al_person_answering == "attorney": 
+  % elif al_person_answering == "attorney": 
   Are there any other defendants named in the tax lien?
   % endif 
-  % endif
 subquestion: |
   % if len(users.elements) > 1:  
   So far you have told us about ${comma_and_list(users.complete_elements())}.
   % endif
 fields:
   - no label: users.there_is_another
-
     datatype: yesnoradio
 ---
 
