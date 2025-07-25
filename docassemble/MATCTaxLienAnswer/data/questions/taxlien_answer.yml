@@ -87,12 +87,8 @@ code: |
   Preview_of_taxlien_answer
   docket_number
   property_address.address
-  #plaintiffs.gather()
   al_person_answering
   attorneys.gather()
-  #attorneys[0].name.first
-  #users_address.address
-  #users[0].phone_number
   user_relationship_to_property
   users_response_to_taxlien
   users_address.address
@@ -100,23 +96,11 @@ code: |
   users[0].mobile_number
   users[0].email
   set_progress(16)
-  #bbo_number_if_attorney
-  #trial_court.address.address
-  #names_address_of_persons_served
   trial_court.address.address
   set_progress(32)
-  #docket_number
-  #plaintiffs.gather()
   plaintiffs[0].name.first
-  #plaintiff_address.address
-  #Plaintiff_service_address
   set_progress(48)
-  #users[0].mobile_number
-  #users[0].email
-  #trial_court.address.address
   set_progress(64)
-  #trial_court_county
-  #property_address.address
   names_address_persons_served.address
   signature_date
   interview_order_taxlien_answer = True
@@ -132,19 +116,11 @@ code: |
   Preview_of_taxlien_answer
   docket_number
   property_address.address
-  #property_address.address_fields()
-  #plaintiffs.gather()
   al_person_answering
-  #attorneys[0].name.first
   interview_order_taxlien_answer
   users_address.address
   users[0].phone_number
-  #trial_court_county
-  #property_address.address_fields()
-  #plaintiffs.gather()
   plaintiffs[0].name.first
-  #plaintiff_address.address
-  #Plaintiff_service_address
   names_address_persons_served.address
   signature_date
   basic_questions_signature_flow
@@ -353,31 +329,6 @@ fields:
 --- 
 objects:
   - property_address: ALAddress
-#---
-#sets: 
-#  - plaintiff_address.address
-#  - plaintiff_address.city
-#  - plaintiff_address.zip
-#id: Plaintiffs address 
-#question: |
-#  What is the plaintiff's service address?
-#subquestion: |
-#  The plaintiff's address can be found on the first page of your tax lien citation under the section labeled **Plaintiff's Service Address And Telephone Number.**
-#fields: 
-#  - code: plaintiff_address.address_fields()
-#under: |
-#  **The plaintiff is who is suing you.**
-#---
-#objects:
-#  - plaintiff_address: ALAddress
-#---
-#id: Plaintiff_service_address 
-#question: |
-  #Do you intend to serve the plaintiff at their service address?
-#field: Plaintiff_service_address
-#choices:
-#  - Yes
-#  - No 
 ---
 sets:
   - names_address_persons_served.address
@@ -452,9 +403,6 @@ subquestion: |
   
   Remember to come back to this window to continue and sign your form.
 continue button field: taxlien_answer_preview_question    
----
-#code: |
-#  signature_fields = ['users[0].signature']
 ---
 code: |
   # This is a placeholder for the addresses that will be searched
