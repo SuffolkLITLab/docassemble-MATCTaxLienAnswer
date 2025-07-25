@@ -2,6 +2,7 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.MassAccess:massaccess.yml
+  - docassemble.MATCTheme:matc_theme.yml
 ---
 features: 
   css: form-styles.css
