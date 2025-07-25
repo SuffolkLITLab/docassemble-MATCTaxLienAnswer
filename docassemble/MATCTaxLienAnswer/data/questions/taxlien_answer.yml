@@ -213,7 +213,11 @@ sets:
   - attorneys[0].name.suffix
 id: Defendant_attorney_name
 question: |
+  % if al_person_answering == "user":
+  What is your attorney's name?
+  % else:
   What is your name?
+  % endif
 fields:
   - code: |
       attorneys[0].name_fields()
