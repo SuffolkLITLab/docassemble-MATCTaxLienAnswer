@@ -323,16 +323,15 @@ fields:
     datatype: checkboxes  
     choices: 
       - I claim the right to take back full ownership of the property by paying the amount the Court decides I owe: claims_right_to_redeem
+        help: |
+          This is known as a right to redeem the title.
       - I question the plaintiff's right to my property because of issues with the tax claim or collector's deed: questions_the_validity
+        help: |
+          This is known as questioning the validity of the plaintiff's title.
     none of the above: False 
   - "Reason(s) for questioning plaintiff's claim:": if_user_questions_validity_specify_reason
     input type: area 
     show if: users_response_to_taxlien["questions_the_validity"] 
-auto terms:
-  I claim the right to take back full ownership of the property by paying the amount the Court decides I owe: |
-    This is known as a right to redeem the title.
-  I question the plaintiff's right to my property because of issues with the tax claim or collector's deed: |
-    This is known as questioning the validity of the plaintiff's title.
 ---
 sets: 
   - property_address.address
