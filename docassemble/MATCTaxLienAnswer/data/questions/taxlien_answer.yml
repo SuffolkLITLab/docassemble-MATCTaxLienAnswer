@@ -71,16 +71,27 @@ objects:
   - other_parties: ALPeopleList.using(ask_number=True, target_number=1) 
 ---
 sections:
-  - review_taxlien_answer: Review your answers
+  - review_taxlien_answer: Click to review answers
+  - section_intro: Introduction
+  - section_case_information: Case Information
+  - section_defendant_information: Defendant Information  
+  - section_answer: Answer to Tax Lien
+  - section_service_information: Service of Process Information 
 ---
 #################### Interview order #####################
 comment: |
   Controls order and branching logic for questions specific to this form
 id: interview_order_taxlien_answer
 code: |
-  # Set the allowed courts for this interview
-  allowed_courts = ['Land Court']
-  nav.set_section("review_taxlien_answer")
+  nav.set_section("section_case_information")
+  docket_number
+  property_address.address
+
+  nav.set_section("section_defendant_information")
+  al_person_answering
+  if al_person_answering == "attorney":
+    attorneys[0].name.first
+
   user_role = "defendant"
   user_ask_role = "defendant"
   users.gather()
@@ -88,22 +99,25 @@ code: |
   Preview_of_taxlien_answer
   docket_number
   property_address.address
-  al_person_answering
-  attorneys.gather()
-  user_relationship_to_property
-  users_response_to_taxlien
+
   users[0].address.address
   users[0].phone_number
   users[0].mobile_number
   users[0].email
+
+  nav.set_section("section_answer")
+  user_relationship_to_property
+  users_response_to_taxlien
   set_progress(16)
   trial_court.address.address
   set_progress(32)
+
+  nav.set_section("section_service_information")
   plaintiffs[0].name.first
   set_progress(48)
   set_progress(64)
   names_address_persons_served.address
-  signature_date
+
   interview_order_taxlien_answer = True
 ---
 ###################### Main order ######################
@@ -112,17 +126,11 @@ comment: |
   Delete mandatory: True to include in another interview
 mandatory: True
 code: |
+  nav.set_section("section_intro")
   al_intro_screen
   taxlien_answer_intro
   Preview_of_taxlien_answer
-  docket_number
-  property_address.address
-  al_person_answering
   interview_order_taxlien_answer
-  users[0].address.address
-  users[0].phone_number
-  plaintiffs[0].name.first
-  names_address_persons_served.address
   signature_date
   basic_questions_signature_flow
   # Store anonymous data for analytics / statistics
@@ -155,7 +163,7 @@ subquestion: |
   
   When you are finished, you will need to:
   
-  * Serve this Tax Lien Answer by delivering or mailing a copy to the Plaintiff or their counsel.
+  * Serve this Tax Lien Answer by delivering or mailing a copy to the Plaintiff or their attorney.
 
   Most people take about 20 minutes to complete this interview.
 ---
@@ -391,10 +399,28 @@ id: Tax Lien Plaintiff Name
 question: |
   What is the name of the plaintiff?
 subquestion: |
-  The plaintiff's name can be found on your tax lien complaint and citation. **The plaintiff is who is suing you.**
+  The plaintiff's name can be found on your tax lien complaint and citation.
+  % if al_person_answering == "user":
+  **The plaintiff is who is suing you.**
+  % endif
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')
+---
+generic object: ALIndividual
+template: x.business_name_label
+content: |
+  Name of business or City/Town
+---
+generic object: ALIndividual
+template: x.business_choice_label
+content: |
+  Business or City/Town
+---
+generic object: ALIndividual
+template: x.person_type_label
+content: |
+  The plaintiff is a:
 ---
 id: preview taxlien_answer
 question: |
@@ -411,6 +437,9 @@ subquestion: |
   
   Remember to come back to this window to continue and sign your form.
 continue button field: taxlien_answer_preview_question    
+---
+code: |
+  allowed_courts = ['Land Court']
 ---
 # There's only one land court, so we don't need to handle multiple courts here
 code: |
@@ -455,10 +484,6 @@ review:
     button: |
       **Users1 firm**:
       > ${ single_paragraph(users1_firm) }
-  - Edit: users1_fax
-    button: |
-      **Users1 fax**:
-      ${ users1_fax }
   - Edit: names_address_persons_served.address
     button: |
       **Address to serve plaintiffs**:
@@ -557,7 +582,7 @@ attachment:
 ---
 attachment:
   name: taxlien answer
-  filename: taxlien_answer 
+  filename: taxlien_answer
   variable name: taxlien_answer_attachment[i]
   skip undefined: True
   pdf template file: taxlien_answer.pdf
@@ -582,7 +607,7 @@ attachment:
       - "users3_name": ${ users[2] }
       - "bbo_number": ${ bbo_number } 
       - "users1_firm": ${ users1_firm }
-      - "users_is_defendant": ${ al_person_answering == "defendant" }
+      - "users_is_defendant": ${ al_person_answering == "user" }
       - "users_is_attorney": ${ al_person_answering == "attorney" }
       - "if_user_is_other_specify": ${ if_user_is_other_specify }
       - "user_is_owner": ${ user_relationship_to_property["owner"] }
