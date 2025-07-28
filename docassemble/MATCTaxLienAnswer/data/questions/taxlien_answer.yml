@@ -3,9 +3,28 @@ include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.MassAccess:massaccess.yml
   - docassemble.MATCTheme:matc_theme.yml
+  - efile.yml
 ---
 features: 
   css: form-styles.css
+---
+code: |
+  jurisdiction_id = 'massachusetts'
+---
+code: |
+  proxy_conn = ProxyConnection(credentials_code_block='tyler_login', default_jurisdiction=jurisdiction_id)
+---
+code: |
+  form_uses_efiling = True
+---
+code: |
+  logged_out_interview = 'docassemble.MassAccess:efile-account-interview.yml'
+---
+code: |
+  admin_interview = "docassemble.EFSPIntegration:admin_interview.yml"
+---
+objects:
+  - court_case_search: EFCaseSearch
 ---
 metadata:
   title: |
@@ -84,7 +103,19 @@ comment: |
 id: interview_order_taxlien_answer
 code: |
   nav.set_section("section_case_information")
-  docket_number
+  if can_check_efile:
+    court_case_search.do_what_choice
+    court_case_search.case_was_found
+    previous_case_id
+    docket_number
+    target_case = court_case_search
+    # Should we set users/other_parties.there_is_another=False here?
+    add_existing_users
+
+    efile_case_category
+    efile_case_type
+  else:
+    docket_number
   property_address.address
 
   nav.set_section("section_defendant_information")
@@ -119,6 +150,29 @@ code: |
   set_progress(64)
   names_address_persons_served.address
 
+  if can_check_efile:
+    if no_payment_needed:
+      tyler_payment_id = default_jurisdiction_waiver
+    else:
+      tyler_payment_id
+
+    lead_contact = users[0]
+
+    taxlien_answer_attachment.completed
+    al_court_bundle.completed
+
+    all_required_screens_shown
+    ready_to_efile
+  if ready_to_efile:
+    email_confirmation_subject = email_confirmation.subject
+    email_confirmation_contents = email_confirmation.content
+    acceptance_subject = acceptance_email.subject
+    acceptance_contents = acceptance_email.content
+    rejected_subject = rejection_email.subject
+    rejected_contents = rejection_email.content
+    neutral_subject = neutral_email.subject
+    neutral_contents = neutral_email.content
+
   interview_order_taxlien_answer = True
 ---
 ###################### Main order ######################
@@ -131,6 +185,9 @@ code: |
   al_intro_screen
   taxlien_answer_intro
   Preview_of_taxlien_answer
+  if can_check_efile:
+    tyler_login
+
   interview_order_taxlien_answer
   signature_date
   basic_questions_signature_flow
@@ -194,6 +251,20 @@ mandatory: true
 fields:
   - Docket number: docket_number
     required: True 
+---
+if: can_check_efile
+code: |
+  previous_case_id = court_case_search.found_case.tracking_id
+  docket_number = court_case_search.found_case.docket_number
+  efile_case_category = court_case_search.found_case.category
+  efile_case_type = court_case_search.found_case.efile_case_type
+---
+code: |
+  is_initial_filing = False
+---
+code: |
+  # These rules are from Appeals: do they still hold for trial court?
+  no_payment_needed = False # is_indigent
 ---
 id: Who_is_filling_out_this_form
 question: | 
@@ -615,21 +686,35 @@ confirm: True
 id: download taxlien_answer
 event: Tax_Lien_Form_download
 question: |
-  All done
+  Your forms have been filled out
 subquestion: |
+  % if can_check_efile and showifdef('efile'):
+  Thank you ${users}. Your form is has been delivered. You can download a copy
+  of your forms below. You will get updates about your case by email.
+  % else:
   Thank you ${users}. Your form is ready to download and deliver.
   
   View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
 
   ${ action_button_html(url_action('review_taxlien_answer'), label='Edit answers', color='info') }
+
+  % if can_check_efile and not (defined('efile') and efile):
+  <h2 class="h4">E-file your form</h2>
   
+  Click the **E-file** button below to e-file your form.
   
+  ${ action_button_html(url_ask([{'recompute': ['efile']}]), label='E-file', id_tag='efile-button', icon='file-export', size='md')}
+  % endif
+
+  % endif
+  
+  <h2 class="h4">Download for your records</h2>
   ${ al_user_bundle.download_list_html() }
-  
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
 
 progress: 100
+prevent going back: True
 ---
 # ALDocument objects specify the metadata for each template
 objects:
