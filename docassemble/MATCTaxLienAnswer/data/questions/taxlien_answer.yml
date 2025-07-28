@@ -92,7 +92,7 @@ code: |
   attorneys.gather()
   user_relationship_to_property
   users_response_to_taxlien
-  users_address.address
+  users[0].address.address
   users[0].phone_number
   users[0].mobile_number
   users[0].email
@@ -119,7 +119,7 @@ code: |
   property_address.address
   al_person_answering
   interview_order_taxlien_answer
-  users_address.address
+  users[0].address.address
   users[0].phone_number
   plaintiffs[0].name.first
   names_address_persons_served.address
@@ -226,15 +226,15 @@ fields:
       attorneys[0].name_fields()
 ---
 sets: 
-  - users_address.address
-  - users_address.city
+  - users[0].address.address
+  - users[0].address.city
 id: Users current address 
 question: | 
    What is your mailing address? 
 subquestion: |
   All further notices will be sent to the address provided, unless you file a change of address with the Land Court and send a copy to the Plaintiff's service address.
 fields: 
-  - code: users_address.address_fields()
+  - code: users[0].address.address_fields()
 ---
 sets:
   - users[i].name.first
@@ -274,11 +274,6 @@ subquestion: |
 fields:
   - no label: users.there_is_another
     datatype: yesnoradio
----
-
----
-objects: 
-  - users_address: ALAddress
 ---
 id: What_is_the_users_relation_to_the_property
 question: |
@@ -417,12 +412,9 @@ subquestion: |
   Remember to come back to this window to continue and sign your form.
 continue button field: taxlien_answer_preview_question    
 ---
+# There's only one land court, so we don't need to handle multiple courts here
 code: |
-  # This is a placeholder for the addresses that will be searched
-  # for matching address to court. Edit if court venue is based on 
-  # a different address than the user's
-  [user.address.address for user in users.complete_elements()]
-  addresses_to_search = [user.address for user in users.complete_elements()]
+  trial_court = all_courts.matching_land_court(users[0].address)
 ---
 id: taxlien answer review screen
 event: review_taxlien_answer
@@ -614,11 +606,11 @@ attachment:
       - "users1_firm": ${ users1_firm }
       - "users1_mobile_number": ${ users[0].mobile_number }
       - "users1_fax": ${ users[0].fax_number }
-      - "users1_address_unit": ${ users_address.unit }
-      - "users1_address_address": ${ users_address.normalized_address().address }
-      - "users1_address_city": ${users_address.normalized_address().city }
-      - "users1_address_state": ${users_address.normalized_address().state }
-      - "users1_address_zip": ${ users_address.zip }
+      - "users1_address_unit": ${ users[0].address.unit }
+      - "users1_address_address": ${ users[0].address.normalized_address().address }
+      - "users1_address_city": ${ users[0].address.normalized_address().city }
+      - "users1_address_state": ${ users[0].address.normalized_address().state }
+      - "users1_address_zip": ${ users[0].address.zip }
       - "users1_email": ${ users[0].email }
       - "users1_signature": ${users[0].signature }
       - "users1_signature__1": ${users[0].signature }
