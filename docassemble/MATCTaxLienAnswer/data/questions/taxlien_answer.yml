@@ -421,13 +421,6 @@ event: review_taxlien_answer
 question: |
   Review your answers
 review:
-#  - Edit: trial_court
-#    button: |
-#      **Trial court**
-  
-#      % if defined("trial_court.address.county"):
-#      * address: ${ trial_court.address.block() }
-#      % endif
   - Edit: docket_number
     button: |
       **Docket number**:
@@ -466,14 +459,11 @@ review:
     button: |
       **Users1 fax**:
       ${ users1_fax }
-  - Edit: signature_date
+  - Edit: names_address_persons_served.address
     button: |
-      **Date of signature**:
-      ${ signature_date }
-  - Edit: names_address_persons_served
-    button: |
-      **Names address persons served**:
-      > ${ single_paragraph(names_address_persons_served) }
+      **Address to serve plaintiffs**:
+
+      ${ single_paragraph(names_address_persons_served) }
 ---
 continue button field: plaintiffs.revisit
 question: |
@@ -567,19 +557,19 @@ attachment:
 ---
 attachment:
   name: taxlien answer
-  filename: Tax_Lien_Form
+  filename: taxlien_answer 
   variable name: taxlien_answer_attachment[i]
   skip undefined: True
-  pdf template file: Tax-Lien-_Form.pdf
+  pdf template file: taxlien_answer.pdf
   editable: False
   fields:
       - "trial_court_county": ${ property_address.normalized_address().county  }
-      - "trial_court_county__1": ${property_address.normalized_address().county }
+      - "trial_court_county__1": ${ property_address.normalized_address().county }
       - "docket_number": ${ docket_number }
       - "docket_number__1": ${ docket_number }
       - "plaintiffs_name": ${ plaintiffs[0] }
       - "plaintiffs_name__1": ${ plaintiffs[0] }
-      - "users_name": ${ users[0] }
+      - "users_name": ${ users.short_list(4) }
       - "users1_name": ${ users[0] }
       - "users1_name__1": |
           % if al_person_answering == "attorney":
@@ -587,13 +577,13 @@ attachment:
           % else:
           ${ users[0] }
           % endif
-      - "users_name__1": ${ users[0] }
+      - "users_name__1": ${ users.short_list(4) }
       - "users2_name": ${ users[1] }
       - "users3_name": ${ users[2] }
       - "bbo_number": ${ bbo_number } 
       - "users1_firm": ${ users1_firm }
       - "users_is_defendant": ${ al_person_answering == "defendant" }
-      - "users_is_attorney": ${al_person_answering == "attorney" }
+      - "users_is_attorney": ${ al_person_answering == "attorney" }
       - "if_user_is_other_specify": ${ if_user_is_other_specify }
       - "user_is_owner": ${ user_relationship_to_property["owner"] }
       - "user_is_mortgagee": ${ user_relationship_to_property["mortgagee"] }
@@ -612,22 +602,14 @@ attachment:
       - "users1_address_state": ${ users[0].address.normalized_address().state }
       - "users1_address_zip": ${ users[0].address.zip }
       - "users1_email": ${ users[0].email }
-      - "users1_signature": ${users[0].signature }
-      - "users1_signature__1": ${users[0].signature }
+      - "users1_signature": ${ users[0].signature }
+      - "users1_signature__1": ${ users[0].signature }
       - "signature_date": ${ signature_date }
       - "signature_date__1": ${ signature_date }
       - "names_address_persons_served": |
             ${ service_name }
             ${ Firm_name }
-            ${ names_address_persons_served.address}
-            ${ names_address_persons_served.unit}
-            ${ names_address_persons_served.city}
-            ${ names_address_persons_served.state}
-            ${ names_address_persons_served.zip}
-      - "plaintiff_address": ${ plaintiff_address.normalized_address().address }
-      - "plaintiff_address.city": ${ plaintiff_address.normalized_address().city }
-      - "plaintiff_address.state": ${ plaintiff_address.normalized_address().state }
-      - "Plaintiff_service_address": ${Plaintiff_service_address}
+            ${ names_address_persons_served.block()}
 ---
 code: |
   taxlien_answer_attachment.overflow_fields["if_user_questions_validity_specify_reason"].overflow_trigger = 1068
@@ -635,6 +617,3 @@ code: |
   #taxlien_answer_attachment.overflow_fields["names_address_persons_served"].overflow_trigger = 2116
   #taxlien_answer_attachment.overflow_fields["names_address_persons_served"].label = "Names address of persons served"
   taxlien_answer_attachment.overflow_fields.gathered = True
-
-
-
