@@ -140,14 +140,14 @@ continue button field: taxlien_answer_intro
 question: |
   Tax Lien Answer and Certificate of Service Form Introduction 
 subquestion: |
-  This interview will help you fill out the forms required to file and serve a tax lien answer and certificate of service. The information you provide will be entered on the court form(s) in the correct places. This interview is free to use. For more information on tax lien forclosures and frequently asked questions 
-  [visit the following Land Court page](https://www.mass.gov/land-court-tax-lien-foreclosure-cases-resources).
-  
+  This interview will help you fill out two court forms: (1) a tax lien answer and (2) a certificate of service. The information you provide will be entered on the court forms in the correct places. This interview is free to use. For more information on tax lien forclosures and frequently asked questions 
+  [visit this Land Court page](https://www.mass.gov/land-court-tax-lien-foreclosure-cases-resources).
+
   * Attorneys: In questions referring to "You," "You" is your client.
-  * Defendant refers to the person who has the tax lien against them.
-  * Plaintiff refers to who is suing. 
+  * Defendant means the person who has been sued because of a tax lien on their property.
+  * Plaintiff means the person (often a city or town) who is suing. 
  
-  Before you get started, please gather:
+  Before you start, please get:
   
   * Your Tax Lien Complaint and Citation. 
  
@@ -162,8 +162,10 @@ subquestion: |
 id: Preview_of_taxlien_answer
 continue button field: Preview_of_taxlien_answer
 question: |
-  The following is a preview of the Tax Lien Answer Form and Certificate of Service. 
+  The below is a preview of the Tax Lien Answer Form and Certificate of Service. 
 subquestion: |
+  [Click here to preview a larger version of an empty answer form](https://www.mass.gov/doc/tax-lien-answer-and-certificate-of-service/download).
+
   <div class="image-row">
     <div class="image">[FILE Tax_Lien_Answer_Preview.jpg, 100%]</div>
     <div class="image">[FILE Tax_Lien_Answer_Preview_Page_2.jpg, 100%]</div>
@@ -173,9 +175,9 @@ id: What_is_your_case_docket_number
 question: |
   What is the Land Court docket number for your case?
 subquestion: |
-  You can find your docket number in your Tax Lien Complaint or Citation. Also, the court use the phrases "case number" and "docket number" interchangeably. 
+  You can find your docket number in your Tax Lien Complaint or Citation. The phrases "case number and "docket number" mean the same thing.
   
-  The following is an example of a docket number: XX TL XXXXXX
+  The following is an example of a docket number: 23 TL 001234
   
   Here is a 
   [link to a video on how to find your docket number through the court system](https://www.mass.gov/info-details/how-to-search-court-dockets#video-introduction:-how-to-search-court-dockets-).
@@ -187,6 +189,8 @@ fields:
 id: Who_is_filling_out_this_form
 question: | 
   Who is filling out this form?
+subquestion: |
+  "Defendant" means the person who has been sued because of a tax lien on their property.
 fields:
   - I am: al_person_answering
     datatype: radio
@@ -198,14 +202,12 @@ fields:
     show if: 
       variable: al_person_answering
       is: attorney
-  - "Attorney's Firm or Agency Name": users1_firm 
+  - "Attorney's firm or agency name": users1_firm 
     required: False
     input type: area 
     show if: 
       variable: al_person_answering
       is: attorney
-under: |
- Defendant refers to the person who has the tax lien against them.
 ---
 sets:
   - attorneys[0].name.first
@@ -312,23 +314,29 @@ question: |
    % endif
 subquestion: |
   You may choose both options if necessary.
+  [Click here for more information about these responses](https://www.mass.gov/info-details/frequently-asked-questions-about-tax-lien-foreclosure-cases-in-the-land-court).
 fields:
-  - Defendant: users_response_to_taxlien
+  - no label: users_response_to_taxlien
     datatype: checkboxes  
     choices: 
-      - Claims the right to redeem the title by paying the amount owed as determined by the Court: claims_right_to_redeem
-      - Questions the validity of the Plaintiff's title under the relevant instrument of taking for taxes or collector's deed at issue in this case: questions_the_validity
+      - I claim the right to take back full ownership of the property by paying the amount the Court decides I owe: claims_right_to_redeem
+      - I question the plaintiff's right to my property because of issues with the tax claim or collector's deed: questions_the_validity
     none of the above: False 
-  - "Reason(s) for questioning the validity of plaintiff's title": if_user_questions_validity_specify_reason
+  - "Reason(s) for questioning plaintiff's claim:": if_user_questions_validity_specify_reason
     input type: area 
     show if: users_response_to_taxlien["questions_the_validity"] 
+auto terms:
+  I claim the right to take back full ownership of the property by paying the amount the Court decides I owe: |
+    This is known as a right to redeem the title.
+  I question the plaintiff's right to my property because of issues with the tax claim or collector's deed: |
+    This is known as questioning the validity of the plaintiff's title.
 ---
 sets: 
   - property_address.address
   - property_address.city
 id: Property County
 question: |
-   What is the address of the property?
+   What is the address of the property with the tax lien against it?
 fields: 
  - code: property_address.address_fields()
 --- 
@@ -359,7 +367,7 @@ question: |
 subquestion: | 
   By signing your name, you agree that all the information you provided is true and accurate to the best of your knowledge.
   
-  Your signature also guarantees that you will serve this answer once completed, to the Plaintiff or their counsel. 
+  Your signature also guarantees that you will serve this Answer form once completed to the plaintiff or their attorney. 
 signature: users[0].signature
 --- 
 id: your contact information
