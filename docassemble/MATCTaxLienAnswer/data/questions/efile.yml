@@ -1,0 +1,218 @@
+---
+#############
+# Test cases
+# MCQA02 – 22 TL 000001
+---
+######
+# TODO:
+# * don't ask "defendant or attorney" question (Who_is_filling_out_this_form)
+#     * should be able to tell from the party selection (i"m filing for them)
+# * default "your contact information" page
+# * wth to do with the service? right now it's still mailing service,
+#     * idk what MA does with e-service
+# * integrate Affidavit of Indigency?
+# * Assuming "Answer (unspecified)" is the best option, no other tax lien specific options
+# * Assuming filer should select for public or restricted (working on a better screen)
+---
+include:
+  - docassemble.EFSPIntegration:efiling_integration.yml
+  - docassemble.EFSPIntegration:case_search.yml
+  - docassemble.EFSPIntegration:toga_payments.yml
+---
+code: |
+  efile_case_category_filters = ["idk"]
+  efile_case_category_exclude = None
+  efile_case_category_default = None
+  efile_case_type_filters = ["idk"]
+  efile_case_type_default = None
+  efile_case_type_exclude = None
+---
+code: |
+  al_court_bundle.filing_type_filters = [
+    "Taxlien Answer",
+    ["Taxlien", "Answer"],
+    "Answer, Unspecified (only use if no other Answer type applies)",
+    "Answer"
+  ]
+  al_court_bundle.has_courtesy_copies = False
+---
+code: |
+  taxlien_answer_attachment.filing_type = al_court_bundle.filing_type
+---
+code: |
+  taxlien_answer_attachment.filing_component_filters = ['Lead Document']
+  taxlien_answer_attachment.has_courtesy_copies = False
+  #taxlien_answer_attachment.document_type_filters
+---
+code: |
+  # Check that the land court is in available efile courts
+  #efile_setup = "210" in available_efile_courts
+  court_id = "210"
+---
+generic object: DAObject
+code: |
+  x.filing_description = ''
+  x.reference_number = None
+  x.filing_parties = ['users[0]']
+  x.filing_action = 'efile'
+---
+generic object: EFCaseSearch
+template: x.docket_lookup_choice
+content: |
+  Docket number
+---
+if: not can_check_efile
+code: |
+  users[0].is_form_filler = False
+---
+if: not is_initial_filing
+code: |
+  # TODO(brycew): harder, because it's affected by user_started_case
+  is_defendant_filters = [
+    CodeType('5788'),
+    CodeType('598'),
+    'Defendant/Appellee',
+    'Defendant/Appellant',
+    'Defendant/Petitioner',
+    'Defendant/Respondent',
+    'defendant',
+  ]
+---
+if: not is_initial_filing
+code: |
+  is_plaintiff_filters = [
+    CodeType('5779'),
+    'Plaintiff/Appellee',
+    'Plaintiff/Appellant',
+    'Plaintiff/Petitioner',
+    'Plaintiff/Respondent',
+    'plaintiff',
+  ]
+---
+###########################
+## Case Search
+###########################
+code: |
+  court_case_search.can_file_non_indexed_case = False
+---
+if: can_check_efile and court_case_search.do_what_choice == 'docket_lookup'
+code: |
+  court_case_search.court_id = "210" # all_courts.courts_from_docket_number(court_case_search.docket_number_from_user)[0].tyler_code
+---
+id: user-wants-efile
+question: |
+  Do you want to e-file this document directly with the court?
+subquestion: |
+  You are able to electronically-file (e-file) this document with the land court!
+
+  This means you don't have to print out the document. The court
+  will communicate with you through your email or phone.
+
+  You will have to provide your email to e-file this document. If you don't wish to provide that,
+  you can choose not to efile.
+fields:
+  - Do you want to e-file?: user_wants_efile
+    datatype: yesnoradio
+---
+template: email_confirmation
+subject: |
+  Important Tax Lien e-filing information
+content: |
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>MassAccess</title>
+  </head>
+  <body>
+  <p>Hello ${ users[0].name },</p>
+  <p><strong>Your Tax Lien Answer forms were sent to the Land Count. They will accept or reject your filing.</strong></p>
+  <p>A person in the court has to accept the forms before they are officially filed.</p>
+  <p><strong>What's next?</strong></p>
+  <p>You should receive an email from Odyssey eFileMA (no-reply@efilingmail.tylertech.cloud). Your forms were given an Envelope Number, which will be used to track your filing.</p>
+  <p>The court clerk will review what you filed.</p>
+  <ul>
+    <li>If it looks good, they will <strong>accept</strong> it. You will receive another email from Odyssey eFileMA explaining that the envelope was accepted. The email will include a link to a copy of your court forms with the clerk's stamp.</li>
+    <li>If there is something wrong with the filing, they will <strong>reject</strong> it. You should receive another email from Odyssey eFileMA with an explanation of what needs to be fixed.</li>
+  </ul>
+  <p>Contact the Land Court at <a href="tel:+16177887470">(617)-788-7470</a> if you have questions.</p>
+  <p>Thank you for using Court Forms Online.<br/>
+  <a href="https://courtformsonline.org">Court Forms Online</a>
+  </p>
+  </body>
+  </html>
+---
+template: neutral_email
+subject: |
+  Clerk response to your e-filed Tax Lien Answer
+content: |
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>MassAccess</title>
+  </head>
+  <body>
+  <p>Hello ${ users[0].name },</p>
+  <p><strong>The Land Court clerk has sent a response to your filing in {{ case_title }}.</strong></p>
+
+  <p><q>{{ status }}</q></p>
+
+  <p>{{ message_text }}</p>
+
+  <p>Contact the Land Court at <a href="tel:+16177887470">(617)-788-7470</a> if you have questions.</p>
+
+  <p>Thank you for using Court Forms Online.<br/>
+  <a href="https://courtformsonline.org">Court Forms Online</a>
+  </p>
+  </body>
+  </html>
+---
+template: acceptance_email
+subject: |
+  Clerk response to your e-filed Tax Lien Answer
+content: |
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>MassAccess</title>
+  </head>
+  <body>
+  <p>Hello ${ users[0].name },</p>
+  <p><strong>The Land Court clerk has sent a response to your filing in {{ case_title }}.</strong></p>
+
+  <p><q>{{ status }}</q></p>
+
+  <p>{{ message_text }}</p>
+
+  <p>Contact the Land Court at <a href="tel:+16177887470">(617)-788-7470</a> if you have questions.</p>
+
+  <p>Thank you for using Court Forms Online.<br/>
+  <a href="https://courtformsonline.org">Court Forms Online</a>
+  </p>
+  </body>
+  </html>
+---
+template: rejection_email
+subject: |
+  Clerk response to your e-filed Tax Lien Answer
+content: |
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>MassAccess</title>
+  </head>
+  <body>
+  <p>Hello ${ users[0].name },</p>
+  <p><strong>The Land Court clerk has sent a response to your filing in {{ case_title }}.</strong></p>
+
+  <p><q>{{ status }}</q></p>
+
+  <p>{{ message_text }}</p>
+
+  <p>Contact the Land Court at <a href="tel:+16177887470">(617)-788-7470</a> if you have questions.</p>
+
+  <p>Thank you for using Court Forms Online.<br/>
+  <a href="https://courtformsonline.org">Court Forms Online</a>
+  </p>
+  </body>
+  </html>
+---
