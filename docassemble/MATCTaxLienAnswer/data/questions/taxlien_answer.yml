@@ -113,6 +113,7 @@ code: |
       not_in_case_kickout
     # Should we set users/other_parties.there_is_another=False here?
     add_existing_users
+    users.there_is_another = False
 
     efile_case_category
     efile_case_type
