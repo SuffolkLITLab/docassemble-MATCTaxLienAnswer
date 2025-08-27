@@ -91,9 +91,10 @@ code: |
   al_person_answering
   if al_person_answering == "attorney":
     attorneys[0].name.first
+    bbo_number
 
-  user_role = "defendant"
-  user_ask_role = "defendant"
+  user_role
+  user_ask_role
   users.gather()
   set_parts(subtitle=str(users))
   Preview_of_taxlien_answer
@@ -210,7 +211,7 @@ fields:
     show if: 
       variable: al_person_answering
       is: attorney
-  - "Attorney's firm or agency name": users1_firm 
+  - "Attorney's firm or agency name": attorney_firm 
     required: False
     input type: area 
     show if: 
@@ -438,6 +439,16 @@ subquestion: |
 continue button field: taxlien_answer_preview_question    
 ---
 code: |
+  if al_person_answering == "attorney":
+    signature_fields = ["attorneys[0].signature"]
+  else:
+    signature_fields = ["users[0].signature"]
+---
+code: |
+  user_role = "defendant"
+  user_ask_role = "defendant"
+---
+code: |
   allowed_courts = ['Land Court']
 ---
 # There's only one land court, so we don't need to handle multiple courts here
@@ -479,10 +490,10 @@ review:
     button: |
       **Bbo number **:
       ${ bbo_number }
-  - Edit: users1_firm
+  - Edit: attorney_firm
     button: |
-      **Users1 firm**:
-      > ${ single_paragraph(users1_firm) }
+      **Attorney's firm**:
+      > ${ single_paragraph(attorney_firm) }
   - Edit: names_address_persons_served.address
     button: |
       **Address to serve plaintiffs**:
@@ -605,7 +616,7 @@ attachment:
       - "users2_name": ${ users[1] }
       - "users3_name": ${ users[2] }
       - "bbo_number": ${ bbo_number } 
-      - "users1_firm": ${ users1_firm }
+      - "users1_firm": ${ attorney_firm }
       - "users_is_defendant": ${ al_person_answering == "user" }
       - "users_is_attorney": ${ al_person_answering == "attorney" }
       - "if_user_is_other_specify": ${ if_user_is_other_specify }
@@ -617,7 +628,7 @@ attachment:
       - "if_user_questions_validity_specify_reason": ${ taxlien_answer_attachment.safe_value("if_user_questions_validity_specify_reason") }
       - "bbo_number": ${ bbo_number }
       - "users1_phone_number": ${ users[0].phone_number }
-      - "users1_firm": ${ users1_firm }
+      - "users1_firm": ${ attorney_firm }
       - "users1_mobile_number": ${ users[0].mobile_number }
       - "users1_fax": ${ users[0].fax_number }
       - "users1_address_unit": ${ users[0].address.unit }
@@ -626,8 +637,18 @@ attachment:
       - "users1_address_state": ${ users[0].address.normalized_address().state }
       - "users1_address_zip": ${ users[0].address.zip }
       - "users1_email": ${ users[0].email }
-      - "users1_signature": ${ users[0].signature }
-      - "users1_signature__1": ${ users[0].signature }
+      - "users1_signature": |
+          % if al_person_answering == "attorney":
+          ${ attorneys[0].signature }
+          % else:
+          ${ users[0].signature }
+          % endif
+      - "users1_signature__1": |
+          % if al_person_answering == "attorney":
+          ${ attorneys[0].signature }
+          % else:
+          ${ users[0].signature }
+          % endif
       - "signature_date": ${ signature_date }
       - "signature_date__1": ${ signature_date }
       - "names_address_persons_served": |
