@@ -109,6 +109,8 @@ code: |
     previous_case_id
     docket_number
     target_case = court_case_search
+    if target_case.self_in_case not in ['is_self', 'is_filing']:
+      not_in_case_kickout
     # Should we set users/other_parties.there_is_another=False here?
     add_existing_users
 
@@ -189,6 +191,7 @@ code: |
     tyler_login
 
   interview_order_taxlien_answer
+  nav.set_section("section_service_information")
   signature_date
   basic_questions_signature_flow
   # Store anonymous data for analytics / statistics
@@ -252,6 +255,7 @@ fields:
   - Docket number: docket_number
     required: True 
 ---
+# What to do when we find the case
 if: can_check_efile
 code: |
   previous_case_id = court_case_search.found_case.tracking_id
@@ -263,8 +267,8 @@ code: |
   is_initial_filing = False
 ---
 code: |
-  # These rules are from Appeals: do they still hold for trial court?
-  no_payment_needed = False # is_indigent
+  # Shouldn't need payment for this interview (it's a response) at all
+  no_payment_needed =  True
 ---
 id: Who_is_filling_out_this_form
 question: | 
@@ -288,6 +292,24 @@ fields:
     show if: 
       variable: al_person_answering
       is: attorney
+---
+id: Just bbo and firm question
+question: |
+  Enter the information about your legal practice
+fields:
+  - "Your BBO number": bbo_number
+    datatype: text
+  - "Your legal firm or agency name": users1_firm 
+    required: False
+    input type: area 
+---
+# Try to autofill al_person_answering if e-filing
+if: can_check_efile
+code: |
+  if court_case_search.self_in_case == "is_self": 
+    al_person_answering = "user"
+  elif court_case_search.self_in_case == "is_filing":
+    al_person_answering = "attorney"
 ---
 sets:
   - attorneys[0].name.first
@@ -446,6 +468,7 @@ subquestion: |
   Your signature also guarantees that you will serve this Answer form once completed to the plaintiff or their attorney. 
 signature: users[0].signature
 --- 
+if: not can_check_efile
 id: your contact information
 question: |
   What is your contact information?
@@ -459,6 +482,17 @@ fields:
     required: False
   - Fax number: users[0].fax_number
     required: False
+validation code: |
+  if not (users[0].mobile_number or users[0].phone_number):
+    validation_error("You need to give at least one phone number", field="users[0].phone_number")
+---
+if: can_check_efile
+id: your contact information
+question: |
+  What is your contact information?
+fields:
+  code: |
+    contact_fields_with_defaults(proxy_conn, users[0], logged_in_user_is_admin, can_check_efile)
 validation code: |
   if not (users[0].mobile_number or users[0].phone_number):
     validation_error("You need to give at least one phone number", field="users[0].phone_number")
