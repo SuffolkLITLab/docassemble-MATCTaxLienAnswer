@@ -292,6 +292,25 @@ code: |
     ['idk', word("I do not know")]
   ])
 ---
+generic object: EFCaseSearch
+template: x.case_number_format_template
+subject: |
+  How do I find my docket number?
+content: |
+  If you do not know your docket number (also called the "case number"), search by your name on [MassCourts.org](https://masscourts.org)&nbsp;<sup>:up-right-from-square:&nbsp;(opens in new tab)</sup>.
+  You may also see the docket number written on paperwork that you got from the court.
+
+  A docket number almost always:
+
+  * Starts with a 2 or 4 digit year
+  * Is followed by a code for the case type, like TL for Tax Lien.
+  * Ends in a number that is unique to your case, usually with leading zeros to make it 6 digits
+
+  Example: **30TL009123**. (This is not a real docket number. Use the number on your paperwork.)
+
+  If you think you know the docket number but you cannot find your case, try making sure that the number follows the
+  rules above. For example, remove any punctuation.
+---
 id: user-wants-efile
 question: |
   Do you want to e-file this document directly with the court?
