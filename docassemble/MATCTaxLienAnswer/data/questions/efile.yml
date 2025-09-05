@@ -45,9 +45,10 @@ code: |
   #taxlien_answer_attachment.document_type_filters
 ---
 code: |
-  # Check that the land court is in available efile courts
-  #efile_setup = "210" in available_efile_courts
   court_id = "210"
+---
+code: 
+  needs_all_info = False
 ---
 generic object: DAObject
 code: |
@@ -89,172 +90,149 @@ code: |
     'plaintiff',
   ]
 ---
-# ##########################
-# ## Register / Login
-# id: eFile Login
-# question: |
-#   Connect to your eFileMA account
-# subquestion: |
-#   You need to use an eFileMA account to e-file this document. If you don't have an account yet, we can help you make one.
+##########################
+## Register / Login
+id: eFile Login
+question: |
+  Connect to your eFileMA account
+subquestion: |
+  You need to use an eFileMA account to e-file this document. If you don't have an account yet, we can help you make one.
 
-#   ${ collapse_template(what_is_efile_ma_template) }
+  ${ collapse_template(what_is_efile_ma_template) }
 
-#   <div class="alert alert-warning" role="alert">
-#     <strong>Warning</strong>: you need to use an individual filer account, not a "firm" account
-#     to file this petition.
-#     <br/>
-#     Choose "new account" if you have an existing account but it is managed by your firm.
-#   </div>
-# fields:
-#   - I want to: user_login_or_make_new
-#     datatype: radio
-#     choices:
-#       - Make a new account: new_account
-#       - Login to my existing account: existing_account
-#   - Email address: my_username
-#     show if:
-#       variable: user_login_or_make_new
-#       is: existing_account
-#     default: |
-#       ${ showifdef("person_to_reg.email") or (user_info().email if user_logged_in() else '') }
-#   - Password: my_password
-#     datatype: ALVisiblePassword
-#     js show if: |
-#       val("user_login_or_make_new") == "existing_account" && !val("user_forgot_password")
-#     default: |
-#       ${ showifdef("new_password") }
-#   - I forgot my password: user_forgot_password
-#     datatype: yesno
-#     show if:
-#       variable: user_login_or_make_new
-#       is: existing_account
-# ---
-# template: what_is_efile_ma_template
-# subject: |
-#   What is eFileMA?
-# content: |
-#   eFileMA is the Massachusetts Trial Court's official system for electronically
-#   filing court documents. It is also called File and Serve.
+  <!--div class="alert alert-warning" role="alert">
+    <strong>Warning</strong>: you need to use an individual filer account, not a "firm" account
+    to file this petition.
+    <br/>
+    Choose "new account" if you have an existing account but it is managed by your firm.
+  </div-->
+fields:
+  - I want to: user_login_or_make_new
+    datatype: radio
+    choices:
+      - Make a new account: new_account
+      - Login to my existing account: existing_account
+        default: ${ showifdef("person_to_reg.email") != "" }
+  - Email address: my_username
+    show if:
+      variable: user_login_or_make_new
+      is: existing_account
+    default: |
+      ${ showifdef("person_to_reg.email") or (user_info().email if user_logged_in() else '') }
+  - Password: my_password
+    datatype: ALVisiblePassword
+    js show if: |
+      val("user_login_or_make_new") == "existing_account" && !val("user_forgot_password")
+    default: |
+      ${ showifdef("new_password") }
+  - I forgot my password: user_forgot_password
+    datatype: yesno
+    show if:
+      variable: user_login_or_make_new
+      is: existing_account
+---
+template: what_is_efile_ma_template
+subject: |
+  What is eFileMA?
+content: |
+  eFileMA is the Massachusetts Trial Court's official system for electronically
+  filing court documents. It is also called File and Serve.
 
-#   This website can help you securely connect to eFileMA using your existing eFileMA
-#   username and password, or to make a new account.
+  This website can help you securely connect to eFileMA using your existing eFileMA
+  username and password, or to make a new account.
 
-#   You can manage your account from the eFileMA website after we help you make it
-#   here.
-# ---
-# code: |
-#   # Firm registration exists, but we don't really need to handle it!
-#   reg_type = 'INDIVIDUAL'
-# ---
-# id: registration info
-# question: |
-#   Create an efileMA account
-# fields:
-#   - Email address: person_to_reg.email
-#     datatype: email
-#     default: ${ user_info().email if user_logged_in() else ''}
-#   - Phone number: person_to_reg.phone_number
-#     datatype: al_international_phone
-#   - Password: new_password
-#     datatype: ALVisiblePassword
-#     under text: |
-#       ${ password_rules.get("validationmessage") }
-#     validate: proxy_conn.is_valid_password
-#   - note: |
-#       ---
-#   - First: person_to_reg.name.first
-#   - Middle: person_to_reg.name.middle
-#     required: False
-#   - Last: person_to_reg.name.last
-#   - Suffix: person_to_reg.name.suffix
-#     required: False
-#     code: name_suffix()
-#   - note: |
-#       ---
-#   - Address: person_to_reg.address.address
-#     address autocomplete: True
-#   - Unit: person_to_reg.address.unit
-#     required: False
-#   - City: person_to_reg.address.city
-#   - State: person_to_reg.address.state
-#     code: states_list()
-#   - Zip: person_to_reg.address.zip
+  You can manage your account from the eFileMA website after we help you make it
+  here.
+---
+code: |
+  # Firm registration exists, but we don't really need to handle it!
+  reg_type = 'INDIVIDUAL'
+---
+id: registration info
+question: |
+  Create an efileMA account
+fields:
+  - Email address: person_to_reg.email
+    datatype: email
+    default: ${ user_info().email if user_logged_in() else ''}
+  - Phone number: person_to_reg.phone_number
+    datatype: al_international_phone
+  - Password: new_password
+    datatype: ALVisiblePassword
+    under text: |
+      ${ password_rules.get("validationmessage") }
+    validate: proxy_conn.is_valid_password
+  - note: |
+      ---
+  - First: person_to_reg.name.first
+  - Middle: person_to_reg.name.middle
+    required: False
+  - Last: person_to_reg.name.last
+  - Suffix: person_to_reg.name.suffix
+    required: False
+    code: name_suffix()
+  - note: |
+      ---
+  - Address: person_to_reg.address.address
+    address autocomplete: True
+  - Unit: person_to_reg.address.unit
+    required: False
+  - City: person_to_reg.address.city
+  - State: person_to_reg.address.state
+    code: states_list()
+  - Zip: person_to_reg.address.zip
 
-# ---
-# only sets:
-#   - tyler_login
-# code: |
-#   if user_login_or_make_new == 'new_account':
-#     person_to_reg.email
-#     tyler_register_resp = proxy_conn.register_user(person_to_reg, registration_type=reg_type)
-#     if not tyler_register_resp.is_ok():
-#       log(f'Failed to register: {tyler_register_resp}')
-#     register_status
+---
+only sets:
+  - tyler_login
+code: |
+  if user_login_or_make_new == 'new_account':
+    person_to_reg.email
+    tyler_register_resp = proxy_conn.register_user(person_to_reg, registration_type=reg_type)
+    if not tyler_register_resp.is_ok():
+      log(f'Failed to register: {tyler_register_resp}')
+    register_status
 
-#   elif showifdef('user_forgot_password'):
-#     tyler_reset_password_resp = proxy_conn.reset_user_password(my_username)
-#     reset_password_screen      
+  elif showifdef('user_forgot_password'):
+    actually_reset_password
+    reset_password_screen      
   
-#   if not showifdef('user_forgot_password'):
-#     # try logging in with new credentials or if it's a regular login
-#     tyler_login_resp = proxy_conn.authenticate_user(tyler_email=my_username, tyler_password=my_password)
-#     undefine("my_password")
-#     if not tyler_login_resp.is_ok():
-#       log(f'Failed to login: {tyler_login_resp}')
-#       login_failed_screen
-#     else:
-#       log(word("You are now connected to your e-filing account"), "primary")
-#   continue_stored_login = False # this is triggering when it shouldn't, maybe this is helpful?
-#   tyler_login = True
-# ---
-# need:
-#   - proxy_conn
-#   - da_store
-# code: |
-#     tyler_header_name = f"TYLER-TOKEN-{jurisdiction_id.upper()}"
-#     tyler_id_name = f"TYLER-ID-{jurisdiction_id}"
-#     try:
-#       if da_store.defined("EFSP-" + tyler_header_name):
-#         proxy_conn.proxy_client.headers[tyler_header_name] = da_store.get("EFSP-" + tyler_header_name)
-#         proxy_conn.proxy_client.headers[tyler_id_name] = da_store.get("EFSP-" + tyler_id_name)
-#         tyler_user = proxy_conn.get_user()
-#         if tyler_user.is_ok():
-#           my_username = tyler_user.data.get('email')
-#           if continue_stored_login:
-#             log(word("You are now connected to your e-filing account") + f" ({my_username})", "primary")
-#             logged_in_user_is_admin, logged_in_user_is_global_admin = get_tyler_roles(proxy_conn, None, tyler_user)
-#             tyler_login = True
-#           else:
-#             da_store.set("EFSP-" + tyler_header_name, '')
-#             da_store.set(tyler_user_id_key, '')
-#     except NameError as err:
-#       # Re-raise only name errors, so DA can work correctly
-#       raise err
-#     except Exception as ex:
-#       log_error_and_notify(f"Error when trying to get da_store Tyler token: {ex}")
+  if not showifdef('user_forgot_password'):
+    # try logging in with new credentials or if it's a regular login
+    tyler_login_resp = proxy_conn.authenticate_user(tyler_email=my_username, tyler_password=my_password)
+    undefine("my_password")
+    if not tyler_login_resp.is_ok():
+      log(f'Failed to login: {tyler_login_resp}')
+      login_failed_screen
+    else:
+      log(word("You are now connected to your e-filing account"), "primary")
+  continue_stored_login = False # this is triggering when it shouldn't, maybe this is helpful?
+  tyler_login = True
+---
+code: |
+  # Needed so we don't send multiple password 
+  tyler_reset_password_resp = proxy_conn.reset_user_password(my_username)
+  actually_reset_password = True
+---
+if: can_connect_to_proxy
+id: unauth-register-done
+question: |
+  % if register_resp.is_ok():
+  Successfully registered
+  % else:
+  Something went wrong when we tried to register your account
+  % endif
+subquestion: |
+  % if register_resp.is_ok():
+  You will get an email from efile${ state_name_to_code(jurisdiction_id) } asking you to activate your account.
 
-# ---
-# if: can_connect_to_proxy
-# id: unauth-register-done
-# question: |
-#   % if register_resp.is_ok():
-#   Successfully registered
-#   % else:
-#   Something went wrong when we tried to register your account
-#   % endif
-# subquestion: |
-#   % if register_resp.is_ok():
-#   You will get an email from efile${ state_name_to_code(jurisdiction_id) } asking you to activate your account.
+  Click "next" after you have clicked the link to activate your account.
 
-#   Click "next" when you have clicked the link to activate your account.
+  % else:
+  ${ debug_display(register_resp) }
+  % endif
 
-#   % else:
-#   ${ debug_display(register_resp) }
-#   % endif
-
-# continue button field: register_status  
-
-
+continue button field: register_status  
 ---
 ###########################
 ## Case Search
