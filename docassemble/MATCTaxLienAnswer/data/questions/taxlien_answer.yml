@@ -464,91 +464,128 @@ review:
     button: |
       **Docket number**:
       ${ docket_number }
-  - Edit: plaintiffs.revisit
-    button: |
-      **Plaintiffs**
-
-      % for item in plaintiffs:
-        * ${ item }
-      % endfor
   - Edit: users.revisit
     button: |
-      **Users**
+      **Defendants (your side)**
 
-      % for item in users:
-        * ${ item }
+      % for user in users:
+        * ${ user }
       % endfor
-  - Edit: if_user_is_other_specify
+  - Edit: users[0].phone_number
     button: |
-      **If user is other specify**:
-      ${ if_user_is_other_specify }
-  - Edit: if_user_questions_validity_specify_reason
+      **Your phone number**: ${ users[0].phone_number if users[0].phone_number else "(None given)"}
+  - Edit: users[0].mobile_number
     button: |
-      **If user questions validity specify reason**:
-      > ${ single_paragraph(if_user_questions_validity_specify_reason) }
-  - Edit: bbo_number
+      **Your mobile number**: ${ users[0].mobile_number if users[0].mobile_number else "(None given)"}
+  - Edit: users[0].fax_number
     button: |
-      **Bbo number **:
+      **Your fax number**: ${ users[0].fax_number if users[0].fax_number else "(None given)"}
+  - Edit: users[0].address.address
+    button: |
+      **Your mailing address**: ${ users[0].address.on_one_line() }
+  - Edit: users[0].email
+    button: |
+      **Your email**: ${ users[0].email if users[0].email else "(None given)" }
+  - Edit: attorneys[0].signature
+    button: |
+      **Your signature**: ${ attorneys[0].signature }
+    show if: al_person_answering == "attorney"
+  - Edit: users[0].signature
+    button: |
+      **Your signature**: ${ users[0].signature }
+    show if: al_person_answering == "user"
+  # Editing BBO Number and Firm lets people switch between attorney and defendant filing
+  # Have to redo the signature flow if they switch
+  - Edit:
+      - bbo_number
+      - recompute:
+        - signature_fields
+        - basic_questions_signature_flow
+    button: |
+      **BBO number **:
       ${ bbo_number }
-  - Edit: attorney_firm
+    show if: al_person_answering == "attorney"
+  - Edit:
+      - attorney_firm
+      - recompute:
+        - signature_fields
+        - basic_questions_signature_flow
     button: |
       **Attorney's firm**:
       > ${ single_paragraph(attorney_firm) }
+    show if: al_person_answering == "attorney"
+  - Edit: other_parties.revisit
+    button: |
+      **Plaintiffs**
+
+      % for party in other_parties:
+        * ${ party }
+      % endfor
   - Edit: names_address_persons_served.address
     button: |
       **Address to serve plaintiffs**:
 
       ${ single_paragraph(names_address_persons_served) }
+  - Edit: user_relationship_to_property
+    button: |
+      % if al_person_answering == "user":
+      **Your relationship to the property**:
+      % else:
+      **Defendant's relationship to the property**:
+      % endif
+      ${ comma_and_list([rel for rel, val in user_relationship_to_property.items() if val]) }
+      % if user_relationship_to_property["other"]:
+      (${ if_user_is_other_specify })
+      % endif
+  - Edit: users_response_to_taxlien
+    button: |
+      % if al_person_answering == "user":
+      **Your response to the tax lien**:
+      % else:
+      **Defendant's response to the tax lien**:
+      % endif
+
+      % if users_response_to_taxlien["claims_right_to_redeem"]:
+      * claims a right to redeem the title
+      % endif
+      % if users_response_to_taxlien["questions_the_validity"]:
+      * questions the validity of the plaintiff's title for the following reasons:
+
+          > ${ single_paragraph(if_user_questions_validity_specify_reason) }
+      % endif
 ---
-continue button field: plaintiffs.revisit
+continue button field: other_parties.revisit
 question: |
   Edit plaintiffs
 subquestion: |
-  ${ plaintiffs.table }
-
-  ${ plaintiffs.add_action() }
+  ${ other_parties.table }
 ---
-table: plaintiffs.table
-rows: plaintiffs
+table: other_parties.table
+rows: other_parties 
 columns:
   - Name: |
       row_item.name.full() if defined("row_item.name.first") else ""
 edit:
   - name.first
 confirm: True
+delete buttons: False
 ---
 continue button field: users.revisit
 question: |
-  Edit users
+  Edit defendants
 subquestion: |
   ${ users.table }
 
   ${ users.add_action() }
 ---
-table: users.table
+table: users.table 
 rows: users
 columns:
   - Name: |
       row_item.name.full() if defined("row_item.name.first") else ""
-  - Phone number: |
-      row_item.phone_number if defined("row_item.phone_number") else ""
-  - Mobile number: |
-      row_item.mobile_number if defined("row_item.mobile_number") else ""
-  - Address: |
-      row_item.address.block() if defined("row_item.address.zip") else ""
-  - Email: |
-      row_item.email if defined("row_item.email") else ""
-  - Signature: |
-      row_item.signature if defined("row_item.signature") else ""
 edit:
   - name.first
-  - phone_number
-  - mobile_number
-  - address.zip
-  - email
-  - signature
 confirm: True
-
 ---
 id: download taxlien_answer
 event: Tax_Lien_Form_download
@@ -615,8 +652,8 @@ attachment:
       - "users_name__1": ${ users.short_list(4) }
       - "users2_name": ${ users[1] }
       - "users3_name": ${ users[2] }
-      - "bbo_number": ${ bbo_number } 
-      - "users1_firm": ${ attorney_firm }
+      - "bbo_number": ${ bbo_number if al_person_answering == "attorney" else "" }
+      - "users1_firm": ${ attorney_firm if al_person_answering == "attorney" else "" }
       - "users_is_defendant": ${ al_person_answering == "user" }
       - "users_is_attorney": ${ al_person_answering == "attorney" }
       - "if_user_is_other_specify": ${ if_user_is_other_specify }
@@ -626,9 +663,7 @@ attachment:
       - "users_claims_right_to_redeem": ${ users_response_to_taxlien["claims_right_to_redeem"] }
       - "users_question_plaintiff_validity": ${ users_response_to_taxlien["questions_the_validity"] }
       - "if_user_questions_validity_specify_reason": ${ taxlien_answer_attachment.safe_value("if_user_questions_validity_specify_reason") }
-      - "bbo_number": ${ bbo_number }
       - "users1_phone_number": ${ users[0].phone_number }
-      - "users1_firm": ${ attorney_firm }
       - "users1_mobile_number": ${ users[0].mobile_number }
       - "users1_fax": ${ users[0].fax_number }
       - "users1_address_unit": ${ users[0].address.unit }
