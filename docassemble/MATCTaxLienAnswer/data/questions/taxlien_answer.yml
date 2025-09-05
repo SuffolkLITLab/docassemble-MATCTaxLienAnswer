@@ -301,7 +301,7 @@ question: |
 fields:
   - "Your BBO number": bbo_number
     datatype: text
-  - "Your legal firm or agency name": users1_firm 
+  - "Your legal firm or agency name": attorney_firm 
     required: False
     input type: area 
 ---
@@ -573,6 +573,7 @@ review:
     button: |
       **Docket number**:
       ${ docket_number }
+    show if: not can_check_efile
   - Edit: users.revisit
     button: |
       **Defendants (your side)**
@@ -665,6 +666,14 @@ review:
 
           > ${ single_paragraph(if_user_questions_validity_specify_reason) }
       % endif
+  - note: |
+      **Docket number**:
+      ${ docket_number }
+    
+      To change the case you are filing into, restart the interview from the beginning.
+
+      ${ action_button_html(url_of('new_session'), label='Start again', color='warning', size='md') }
+    show if: can_check_efile
 ---
 event: section_intro
 code: |
@@ -708,7 +717,12 @@ question: |
 subquestion: |
   ${ users.table }
 
+  % if can_check_efile:
+  If any of the information above is incorrect, you should contact the court
+  after submitting your answer.
+  % else:
   ${ users.add_action() }
+  % endif
 ---
 table: users.table 
 rows: users
@@ -717,6 +731,15 @@ columns:
       row_item.name.full() if defined("row_item.name.first") else ""
 edit:
   - name.first
+confirm: True
+---
+if: defined("can_check_efile") and can_check_efile
+table: users.table 
+rows: users
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+delete buttons: False
 confirm: True
 ---
 id: download taxlien_answer
