@@ -29,10 +29,10 @@ code: |
 ---
 code: |
   al_court_bundle.filing_type_filters = [
-    "Taxlien Answer",
+    "Answer of Parties",
     ["Taxlien", "Answer"],
-    "Answer, Unspecified (only use if no other Answer type applies)",
     "Answer"
+    "Answer, Unspecified (only use if no other Answer type applies)",
   ]
   al_court_bundle.has_courtesy_copies = False
 ---
