@@ -337,11 +337,13 @@ fields:
 sets: 
   - property_address.address
   - property_address.city
+  - property_address.county
 id: Property County
 question: |
    What is the address of the property with the tax lien against it?
 fields: 
- - code: property_address.address_fields()
+ - code: |
+     property_address.address_fields(show_county=True, required={property_address.attr_name('county'): True})
 --- 
 objects:
   - property_address: ALAddress
@@ -471,6 +473,9 @@ review:
       % for user in users:
         * ${ user }
       % endfor
+  - Edit: property_address.address
+    button: |
+      **Property with tax lien against it**: ${ property_address.on_one_line() }
   - Edit: users[0].phone_number
     button: |
       **Your phone number**: ${ users[0].phone_number if users[0].phone_number else "(None given)"}
@@ -553,6 +558,26 @@ review:
 
           > ${ single_paragraph(if_user_questions_validity_specify_reason) }
       % endif
+---
+event: section_intro
+code: |
+  review_taxlien_answer
+---
+event: section_case_information
+code: |
+  review_taxlien_answer
+---
+event: section_defendant_information
+code: |
+  review_taxlien_answer
+---
+event: section_answer
+code: |
+  review_taxlien_answer
+---
+event: section_service_information
+code: |
+  review_taxlien_answer
 ---
 continue button field: other_parties.revisit
 question: |
