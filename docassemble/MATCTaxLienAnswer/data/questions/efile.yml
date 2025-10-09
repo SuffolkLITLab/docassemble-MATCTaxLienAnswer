@@ -293,7 +293,7 @@ id: user-wants-efile
 question: |
   Do you want to e-file this document directly with the court?
 subquestion: |
-  You are able to electronically-file (e-file) this document with the land court!
+  You can electronically-file (e-file) this document with the Land Court!
 
   This means you don't have to print out the document. The court
   will communicate with you through your email or phone.
