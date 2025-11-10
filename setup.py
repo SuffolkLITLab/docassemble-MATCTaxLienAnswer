@@ -44,7 +44,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.MATCTaxLienAnswer',
-      version='1.0',
+      version='2.0',
       description=('Tax-lien answer'),
       long_description='# docassemble.TaxlienAnswer\r\n\r\nTax-lien answer\r\n\r\n## Author\r\n\r\nTaylor Koch, Joseph Eilert, & Karla R. Fuentes\r\n\r\n',
       long_description_content_type='text/markdown',
