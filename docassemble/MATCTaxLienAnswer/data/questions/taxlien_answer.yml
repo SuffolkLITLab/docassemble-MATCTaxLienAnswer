@@ -488,7 +488,7 @@ validation code: |
     validation_error("You need to give at least one phone number", field="users[0].phone_number")
 ---
 if: can_check_efile
-id: your contact information
+id: "your contact information 2"
 question: |
   What is your contact information?
 fields:
@@ -695,6 +695,7 @@ code: |
   review_taxlien_answer
 ---
 continue button field: other_parties.revisit
+id: "edit plaintiffs"
 question: |
   Edit plaintiffs
 subquestion: |
@@ -711,6 +712,7 @@ confirm: True
 delete buttons: False
 ---
 continue button field: users.revisit
+id: "edit defendants"
 question: |
   Edit defendants
 subquestion: |
