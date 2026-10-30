@@ -237,8 +237,8 @@ subquestion: |
   [Click here to preview a larger version of an empty answer form](https://www.mass.gov/doc/tax-lien-answer-and-certificate-of-service/download).
 
   <div class="image-row">
-    <div class="image">[FILE Tax_Lien_Answer_Preview.jpg, 100%]</div>
-    <div class="image">[FILE Tax_Lien_Answer_Preview_Page_2.jpg, 100%]</div>
+    <div class="image">[FILE Tax_Lien_Answer_Preview.jpg, 100%, The first page of the Tax Lien Answer, asks for case name and demographic information of the defendants]</div>
+    <div class="image">[FILE Tax_Lien_Answer_Preview_Page_2.jpg, 100%, The second page of the Tax Lien Answer, contains the Certificate of Service and signatures]</div>
   </div>  
 ---
 id: What_is_your_case_docket_number 
@@ -251,7 +251,6 @@ subquestion: |
   
   Here is a 
   [link to a video on how to find your docket number through the court system](https://www.mass.gov/info-details/how-to-search-court-dockets#video-introduction:-how-to-search-court-dockets-).
-mandatory: true
 fields:
   - Docket number: docket_number
     required: True 
