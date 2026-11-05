@@ -210,7 +210,7 @@ continue button field: taxlien_answer_intro
 question: |
   Tax Lien Answer and Certificate of Service Form Introduction 
 subquestion: |
-  This interview will help you fill out two court forms: (1) a tax lien answer and (2) a certificate of service. The information you provide will be entered on the court forms in the correct places. This interview is free to use. For more information on tax lien forclosures and frequently asked questions 
+  This interview will help you fill out two court forms: (1) a tax lien answer and (2) a certificate of service. The information you provide will be entered on the court forms in the correct places. This interview is free to use. For more information on tax lien foreclosures and frequently asked questions
   [visit this Land Court page](https://www.mass.gov/land-court-tax-lien-foreclosure-cases-resources).
 
   * Defendant means the person who has been sued because of a tax lien on their property.
@@ -237,8 +237,8 @@ subquestion: |
   [Click here to preview a larger version of an empty answer form](https://www.mass.gov/doc/tax-lien-answer-and-certificate-of-service/download).
 
   <div class="image-row">
-    <div class="image">[FILE Tax_Lien_Answer_Preview.jpg, 100%]</div>
-    <div class="image">[FILE Tax_Lien_Answer_Preview_Page_2.jpg, 100%]</div>
+    <div class="image">[FILE Tax_Lien_Answer_Preview.jpg, 100%, Tax lien answer form preview page 1]</div>
+    <div class="image">[FILE Tax_Lien_Answer_Preview_Page_2.jpg, 100%, Tax lien answer form preview page 2]</div>
   </div>  
 ---
 id: What_is_your_case_docket_number 
@@ -488,7 +488,7 @@ validation code: |
     validation_error("You need to give at least one phone number", field="users[0].phone_number")
 ---
 if: can_check_efile
-id: your contact information
+id: "your contact information 2"
 question: |
   What is your contact information?
 fields:
@@ -695,6 +695,7 @@ code: |
   review_taxlien_answer
 ---
 continue button field: other_parties.revisit
+id: "edit plaintiffs"
 question: |
   Edit plaintiffs
 subquestion: |
@@ -711,6 +712,7 @@ confirm: True
 delete buttons: False
 ---
 continue button field: users.revisit
+id: "edit defendants"
 question: |
   Edit defendants
 subquestion: |
